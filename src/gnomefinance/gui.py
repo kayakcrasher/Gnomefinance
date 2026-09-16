@@ -1,3 +1,5 @@
+from .history import get_history
+from .charts import draw_price_chart
 import tkinter as tk
 
 from .window import create_window
