@@ -9,17 +9,21 @@ class RefreshController:
     def can_refresh(self):
         current_time = time.time()
 
-        if current_time - self.last_refresh >= self.cooldown:
-            return True
-
-        return False
+        return current_time - self.last_refresh >= self.cooldown
 
     def refresh(self):
         if not self.can_refresh():
-            remaining = self.cooldown - (time.time() - self.last_refresh)
+            remaining = self.cooldown - (
+                time.time() - self.last_refresh
+            )
 
-            print(f"Please wait {remaining:.1f} seconds before refreshing again.")
+            print(
+                f"Please wait {remaining:.1f} "
+                "seconds before refreshing again."
+            )
+
             return False
 
         self.last_refresh = time.time()
+
         return True
