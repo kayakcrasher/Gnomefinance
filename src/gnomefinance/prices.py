@@ -2,6 +2,7 @@ import urllib.request
 import json
 
 from .config import API_URL, CURRENCY
+from .errors import PriceAPIError
 
 
 def get_price(coin_id):
@@ -17,7 +18,6 @@ def get_price(coin_id):
         return data[coin_id][CURRENCY]
 
     except Exception as error:
-        print(f"Could not get price for {coin_id}.")
-        print(f"Error: {error}")
-
-        return None
+        raise PriceAPIError(
+            f"Could not get price for {coin_id}: {error}"
+        )
