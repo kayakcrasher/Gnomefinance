@@ -1,11 +1,24 @@
-class Price:
-    def __init__(self, coin_id, symbol, usd):
-        self.coin_id = coin_id
-        self.symbol = symbol
-        self.usd = usd
+from .coins import COINS
+from .prices import get_price
+from .price_data import Price
 
-    def show(self):
-        if self.usd is None:
-            print(f"{self.symbol}: Price unavailable")
-        else:
-            print(f"{self.symbol}: ${self.usd:,.2f}")
+
+def main():
+    print("Welcome to GNOMEfinance!")
+    print()
+
+    for coin_id, symbol in COINS.items():
+        usd_price = get_price(coin_id)
+
+        price = Price(
+            coin_id,
+            symbol,
+            usd_price
+        )
+
+        price.show()
+        print()
+
+
+if __name__ == "__main__":
+    main()
