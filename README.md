@@ -1,0 +1,2 @@
+# Gnomefinance
+Personal cryptocurrency project
