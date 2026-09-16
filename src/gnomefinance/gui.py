@@ -12,6 +12,12 @@ def start_gui():
         text="GNOMEfinance",
         font=("Arial", 20)
     )
+        refresh_button = tk.Button(
+        window,
+        text="REFRESH"
+    )
+
+    refresh_button.pack(pady=20)
 
     title.pack(pady=20)
 
