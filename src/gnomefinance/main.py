@@ -1,8 +1,12 @@
+
 from .assets import Asset
+from .prices import get_bitcoin_price
 
 
 def main():
-    bitcoin = Asset("Bitcoin", "BTC")
+    bitcoin_price = get_bitcoin_price()
+
+    bitcoin = Asset("Bitcoin", "BTC", bitcoin_price)
 
     print("Welcome to GNOMEfinance!")
     bitcoin.show()
