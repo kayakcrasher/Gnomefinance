@@ -10,7 +10,14 @@ def get_price(coin_id):
         f"?ids={coin_id}&vs_currencies={CURRENCY}"
     )
 
-    with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read())
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            data = json.loads(response.read())
 
-    return data[coin_id][CURRENCY]
+        return data[coin_id][CURRENCY]
+
+    except Exception as error:
+        print(f"Could not get price for {coin_id}.")
+        print(f"Error: {error}")
+
+        return None
