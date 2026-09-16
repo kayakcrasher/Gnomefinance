@@ -3,6 +3,8 @@ import tkinter as tk
 from .window import create_window
 from .prices import get_price
 
+def refresh_prices():
+    print("Refreshing prices...")
 
 def start_gui():
     window = create_window()
