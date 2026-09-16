@@ -1,11 +1,11 @@
 from .coins import COINS
 from .prices import get_price
 from .price_data import Price
+from .display import show_header, show_price, show_footer
 
 
 def main():
-    print("Welcome to GNOMEfinance!")
-    print()
+    show_header()
 
     for coin_id, symbol in COINS.items():
         usd_price = get_price(coin_id)
@@ -16,8 +16,9 @@ def main():
             usd_price
         )
 
-        price.show()
-        print()
+        show_price(price)
+
+    show_footer()
 
 
 if __name__ == "__main__":
