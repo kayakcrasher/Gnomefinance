@@ -24,3 +24,6 @@ class PriceCache:
             return None
 
         return saved_data["price"]
+
+    def has(self, coin_id):
+        return self.get(coin_id) is not None
