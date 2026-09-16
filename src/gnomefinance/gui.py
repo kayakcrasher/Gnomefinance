@@ -15,6 +15,7 @@ def start_gui():
         refresh_button = tk.Button(
         window,
         text="REFRESH"
+        command=refresh_prices
     )
 
     refresh_button.pack(pady=20)
