@@ -1,4 +1,4 @@
-from src.gnomefinance.main import main
+from src.gnomefinance.gui import start_gui
 
 
-main()
+start_gui()
