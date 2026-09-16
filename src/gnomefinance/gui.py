@@ -1,9 +1,9 @@
-from .history import get_history
-from .charts import draw_price_chart
 import tkinter as tk
 
 from .window import create_window
 from .prices import get_price
+from .history import get_history
+from .charts import draw_price_chart
 from .refresh import RefreshController
 
 
@@ -36,6 +36,9 @@ def start_gui():
 
     status.pack(pady=10)
 
+    chart_frame = tk.Frame(window)
+    chart_frame.pack()
+
     def refresh_prices():
         if not refresh_controller.can_refresh():
             status.config(
@@ -43,7 +46,6 @@ def start_gui():
             )
             return
 
-        refresh_controller.last_refresh = 0
         refresh_controller.refresh()
 
         status.config(text="Updating prices...")
@@ -65,7 +67,22 @@ def start_gui():
                 text=f"SOL: ${solana_price:,.2f}"
             )
 
-            status.config(text="Prices updated!")
+            history = get_history(
+                "bitcoin",
+                days=7
+            )
+
+            for widget in chart_frame.winfo_children():
+                widget.destroy()
+
+            draw_price_chart(
+                chart_frame,
+                history
+            )
+
+            status.config(
+                text="Prices updated!"
+            )
 
         except Exception as error:
             status.config(
