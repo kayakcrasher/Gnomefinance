@@ -34,3 +34,25 @@ def get_price(coin_id):
         raise PriceAPIError(
             f"Could not get price for {coin_id}: {error}"
         )
+
+
+def force_refresh(coin_id):
+    url = (
+        f"{API_URL}/simple/price"
+        f"?ids={coin_id}&vs_currencies={CURRENCY}"
+    )
+
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            data = json.loads(response.read())
+
+        price = data[coin_id][CURRENCY]
+
+        cache.save(coin_id, price)
+
+        return price
+
+    except Exception as error:
+        raise PriceAPIError(
+            f"Could not refresh {coin_id}: {error}"
+        )
