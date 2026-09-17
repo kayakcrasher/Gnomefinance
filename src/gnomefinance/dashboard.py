@@ -11,6 +11,7 @@ from chart_data import ChartData
 from market_data import MarketData
 from portfolio_allocation import PortfolioAllocation
 from portfolio_input import PortfolioInput
+from portfolio_storage import PortfolioStorage
 from asset_card import AssetCard
 from network_config import NETWORKS
 
@@ -25,9 +26,10 @@ class Dashboard:
 
         self.data = GUIData()
         self.market = MarketData()
+        self.storage = PortfolioStorage()
 
         self.setup_ui()
-        self.load_demo_data()
+        self.load_portfolio()
         self.refresh()
 
     def setup_ui(self):
@@ -162,13 +164,13 @@ class Dashboard:
             pady=5,
         )
 
-        add_button = ttk.Button(
+        set_button = ttk.Button(
             editor,
             text="Set Holding",
             command=self.set_holding,
         )
 
-        add_button.grid(
+        set_button.grid(
             row=0,
             column=4,
             padx=5,
@@ -201,40 +203,58 @@ class Dashboard:
             pady=5,
         )
 
-    def load_demo_data(self):
-        """Load temporary portfolio data."""
-
-        self.data.add_asset(
-            "bitcoin",
-            0.065,
+        save_button = ttk.Button(
+            editor,
+            text="Save Portfolio",
+            command=self.save_portfolio,
         )
 
-        self.data.add_asset(
-            "solana",
-            5.4,
+        save_button.grid(
+            row=1,
+            column=4,
+            padx=5,
+            pady=5,
         )
 
-        self.data.add_asset(
-            "cardano",
-            1500,
+        load_button = ttk.Button(
+            editor,
+            text="Load Portfolio",
+            command=self.load_portfolio,
         )
 
-        self.data.add_asset(
-            "avalanche",
-            25,
+        load_button.grid(
+            row=1,
+            column=5,
+            padx=5,
+            pady=5,
+        )
+
+    def get_portfolio(self):
+        """Return the application's portfolio."""
+
+        return (
+            self.data
+            .portfolio_service
+            .portfolio
+        )
+
+    def get_input_handler(self):
+        """Return a portfolio input handler."""
+
+        return PortfolioInput(
+            self.get_portfolio()
         )
 
     def get_selected_network(self):
         """Return the selected network ID."""
 
-        selected = self.network_var.get()
-
-        return selected.lower()
+        return self.network_var.get().lower()
 
     def set_holding(self):
         """Set an exact portfolio holding."""
 
         try:
+
             amount = float(
                 self.amount_var.get()
             )
@@ -243,15 +263,7 @@ class Dashboard:
                 self.get_selected_network()
             )
 
-            portfolio = (
-                self.data
-                .portfolio_service
-                .portfolio
-            )
-
-            inputs = PortfolioInput(
-                portfolio
-            )
+            inputs = self.get_input_handler()
 
             inputs.set_asset(
                 network,
@@ -259,6 +271,10 @@ class Dashboard:
             )
 
             self.amount_var.set("")
+
+            self.save_portfolio(
+                show_message=False
+            )
 
             self.force_refresh()
 
@@ -276,18 +292,14 @@ class Dashboard:
             self.get_selected_network()
         )
 
-        portfolio = (
-            self.data
-            .portfolio_service
-            .portfolio
-        )
-
-        inputs = PortfolioInput(
-            portfolio
-        )
+        inputs = self.get_input_handler()
 
         inputs.remove_asset(
             network
+        )
+
+        self.save_portfolio(
+            show_message=False
         )
 
         self.force_refresh()
@@ -303,19 +315,73 @@ class Dashboard:
         if not confirm:
             return
 
-        portfolio = (
-            self.data
-            .portfolio_service
-            .portfolio
-        )
-
-        inputs = PortfolioInput(
-            portfolio
-        )
+        inputs = self.get_input_handler()
 
         inputs.clear()
 
+        self.save_portfolio(
+            show_message=False
+        )
+
         self.force_refresh()
+
+    def save_portfolio(
+        self,
+        show_message=True,
+    ):
+        """Save the current portfolio."""
+
+        try:
+
+            self.storage.save(
+                self.get_portfolio()
+            )
+
+            self.status_label.config(
+                text="Portfolio saved"
+            )
+
+            if show_message:
+
+                messagebox.showinfo(
+                    "GNOMEfinance",
+                    "Portfolio saved successfully.",
+                )
+
+        except Exception as error:
+
+            messagebox.showerror(
+                "Save Error",
+                str(error),
+            )
+
+    def load_portfolio(self):
+        """Load the saved portfolio."""
+
+        try:
+
+            loaded = self.storage.load(
+                self.get_portfolio()
+            )
+
+            if loaded:
+
+                self.status_label.config(
+                    text="Portfolio loaded"
+                )
+
+            else:
+
+                self.status_label.config(
+                    text="No saved portfolio found"
+                )
+
+        except Exception as error:
+
+            messagebox.showerror(
+                "Load Error",
+                str(error),
+            )
 
     def clear_assets(self):
         """Remove existing asset cards."""
@@ -357,9 +423,12 @@ class Dashboard:
             )
 
             if info is None:
+
                 price = 0
                 change = 0
+
             else:
+
                 price = info.get(
                     "price",
                     0,
@@ -395,11 +464,7 @@ class Dashboard:
 
         self.clear_chart()
 
-        portfolio = (
-            self.data
-            .portfolio_service
-            .portfolio
-        )
+        portfolio = self.get_portfolio()
 
         chart_data = ChartData(
             portfolio
@@ -454,4 +519,30 @@ class Dashboard:
 
         self.update_dashboard()
 
-    def update
+    def update_dashboard(self):
+        """Update the dashboard display."""
+
+        self.status_label.config(
+            text="Refreshing market data..."
+        )
+
+        self.refresh_button.config(
+            state="disabled"
+        )
+
+        self.root.update_idletasks()
+
+        try:
+
+            dashboard = (
+                self.data
+                .get_dashboard_data()
+            )
+
+            networks = list(
+                dashboard["assets"].keys()
+            )
+
+            market_data = (
+                self.market
+                .get_market_data
