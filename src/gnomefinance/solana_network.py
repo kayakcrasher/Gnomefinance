@@ -1,6 +1,5 @@
-# solana_network.py
-
 from network_interface import NetworkInterface
+from solana_rpc import SolanaRPC
 
 
 class SolanaNetwork(NetworkInterface):
@@ -9,86 +8,49 @@ class SolanaNetwork(NetworkInterface):
     def __init__(
         self,
         rpc_url="https://api.mainnet-beta.solana.com",
+        timeout=10,
     ):
-        self.rpc_url = rpc_url
+        self.rpc = SolanaRPC(
+            rpc_url=rpc_url,
+            timeout=timeout,
+        )
 
     def get_balance(self, address):
         """Return the SOL balance for an address."""
+        return self.rpc.get_balance_sol(address)
 
+    def get_transaction(self, transaction_id):
+        """Transaction lookup will be connected next."""
         raise NotImplementedError(
-            "Solana balance lookup is not "
-            "connected yet."
-        )
-
-    def get_transaction(
-        self,
-        transaction_id,
-    ):
-        """Return transaction information."""
-
-        raise NotImplementedError(
-            "Solana transaction lookup is "
-            "not connected yet."
+            "Solana transaction lookup is not connected yet."
         )
 
     def validate_address(self, address):
-        """Perform basic Solana address validation."""
-
-        if not isinstance(
-            address,
-            str,
-        ):
+        """Basic Solana address validation."""
+        if not isinstance(address, str):
             return False
 
         if not address:
             return False
 
-        return len(address) >= 32
+        return 32 <= len(address) <= 44
 
     def get_network_name(self):
-        """Return the network name."""
-
         return "Solana"
 
     def get_symbol(self):
-        """Return the native asset symbol."""
-
         return "SOL"
 
     def is_connected(self):
-        """Return whether the RPC endpoint is configured."""
-
-        return bool(self.rpc_url)
+        """Check whether the Solana RPC is reachable."""
+        return self.rpc.is_connected()
 
 
 if __name__ == "__main__":
-
     solana = SolanaNetwork()
 
-    print(
-        "GNOMEfinance Solana Adapter"
-    )
-
-    print(
-        "----------------------------"
-    )
-
-    print(
-        "Network:",
-        solana.get_network_name(),
-    )
-
-    print(
-        "Symbol:",
-        solana.get_symbol(),
-    )
-
-    print(
-        "RPC:",
-        solana.rpc_url,
-    )
-
-    print(
-        "Configured:",
-        solana.is_connected(),
-    )
+    print("GNOMEfinance Solana Network")
+    print("----------------------------")
+    print("Network:", solana.get_network_name())
+    print("Symbol:", solana.get_symbol())
+    print("RPC connected:", solana.is_connected())
