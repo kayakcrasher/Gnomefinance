@@ -1,6 +1,6 @@
 # portfolio.py
 
-from network_config import NETWORKS
+from .network_config import NETWORKS
 
 
 class Portfolio:
