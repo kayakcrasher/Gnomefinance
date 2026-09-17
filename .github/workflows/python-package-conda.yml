@@ -34,4 +34,4 @@ jobs:
         env:
           PYTHONPATH: src/gnomefinance
         run: |
-          pytest -v src/gnomefinance/test_networks.py
+          pytest -v 
