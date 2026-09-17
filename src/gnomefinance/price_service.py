@@ -1,14 +1,7 @@
 # price_service.py
 
 from api_client import APIClient
-
-
-COINGECKO_IDS = {
-    "bitcoin": "bitcoin",
-    "solana": "solana",
-    "cardano": "cardano",
-    "avalanche": "avalanche",
-}
+from network_config import NETWORKS
 
 
 class PriceService:
@@ -23,13 +16,20 @@ class PriceService:
         """Return USD prices for selected networks."""
 
         if networks is None:
-            networks = list(COINGECKO_IDS.keys())
+            networks = list(NETWORKS.keys())
 
-        coin_ids = [
-            COINGECKO_IDS[network]
-            for network in networks
-            if network in COINGECKO_IDS
-        ]
+        coin_ids = []
+
+        for network in networks:
+            info = NETWORKS.get(network)
+
+            if info is None:
+                continue
+
+            coin_id = info.get("coingecko_id")
+
+            if coin_id:
+                coin_ids.append(coin_id)
 
         if not coin_ids:
             return {}
@@ -45,15 +45,24 @@ class PriceService:
         prices = {}
 
         for network in networks:
-            coin_id = COINGECKO_IDS.get(network)
+
+            info = NETWORKS.get(network)
+
+            if info is None:
+                continue
+
+            coin_id = info.get("coingecko_id")
 
             if coin_id in data:
-                prices[network] = data[coin_id]["usd"]
+                prices[network] = data[
+                    coin_id
+                ]["usd"]
 
         return prices
 
 
 if __name__ == "__main__":
+
     service = PriceService()
 
     prices = service.get_prices()
@@ -62,4 +71,10 @@ if __name__ == "__main__":
     print("-------------------")
 
     for network, price in prices.items():
-        print(f"{network}: ${price:,.2f}")
+
+        symbol = NETWORKS[network]["symbol"]
+
+        print(
+            f"{symbol}: "
+            f"${price:,.2f}"
+        )
