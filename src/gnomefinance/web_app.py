@@ -878,6 +878,7 @@ def history(coin_id):
     try:
 
         data = get_history(coin_id)
+        days=7)
 
         return jsonify(data)
 
@@ -893,7 +894,8 @@ def portfolio_data():
 
     try:
 
-        data = portfolio.get_data()
+        data = 
+        portfolio.get_all_assets()
 
         return jsonify(data)
 
