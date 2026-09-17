@@ -33,4 +33,4 @@ jobs:
 
       - name: Create public preview
         run: |
-          cloudflared tunnel --url http://localhost:5000
+          cloudflared tunnel --url http://localhost:5000 2>&1 | tee tunnel.log
