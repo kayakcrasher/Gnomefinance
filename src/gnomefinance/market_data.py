@@ -3,14 +3,19 @@
 from api_client import APIClient
 from network_config import NETWORKS
 from error_handler import APIError, NetworkError
+from market_cache import MarketCache
 
 
 class MarketData:
-    """Retrieve market data for GNOMEfinance assets."""
+    """Retrieve and cache market data."""
 
-    def __init__(self):
+    def __init__(self, cache_ttl=60):
         self.client = APIClient(
             "https://api.coingecko.com/api/v3"
+        )
+
+        self.cache = MarketCache(
+            ttl=cache_ttl
         )
 
     def get_market_data(self, networks=None):
@@ -18,6 +23,14 @@ class MarketData:
 
         if networks is None:
             networks = list(NETWORKS.keys())
+
+        cached_data = self.cache.get()
+
+        if cached_data is not None:
+            return self.filter_networks(
+                cached_data,
+                networks,
+            )
 
         coin_ids = []
 
@@ -54,26 +67,15 @@ class MarketData:
             NetworkError,
         ):
 
-            # Let the dashboard decide how
-            # to present the failure.
             return {}
 
         market_data = {}
 
         for coin in data:
 
-            network = None
-
-            for network_id, info in (
-                NETWORKS.items()
-            ):
-
-                if info.get(
-                    "coingecko_id"
-                ) == coin["id"]:
-
-                    network = network_id
-                    break
+            network = self.find_network(
+                coin["id"]
+            )
 
             if network is None:
                 continue
@@ -96,14 +98,54 @@ class MarketData:
                 ),
             }
 
-        return market_data
+        self.cache.set(
+            market_data
+        )
+
+        return self.filter_networks(
+            market_data,
+            networks,
+        )
+
+    def find_network(self, coin_id):
+        """Find a GNOMEfinance network by CoinGecko ID."""
+
+        for network_id, info in (
+            NETWORKS.items()
+        ):
+
+            if info.get(
+                "coingecko_id"
+            ) == coin_id:
+
+                return network_id
+
+        return None
+
+    def filter_networks(
+        self,
+        market_data,
+        networks,
+    ):
+        """Return only requested networks."""
+
+        return {
+            network: market_data[network]
+            for network in networks
+            if network in market_data
+        }
+
+    def clear_cache(self):
+        """Force the next request to fetch fresh data."""
+
+        self.cache.clear()
 
 
 if __name__ == "__main__":
 
-    market = MarketData()
-
-    data = market.get_market_data()
+    market = MarketData(
+        cache_ttl=60
+    )
 
     print(
         "GNOMEfinance Market Data"
@@ -113,15 +155,24 @@ if __name__ == "__main__":
         "------------------------"
     )
 
-    for network, info in data.items():
+    first = market.get_market_data()
 
-        symbol = NETWORKS[
-            network
-        ]["symbol"]
+    print(
+        "First request complete."
+    )
 
-        print(
-            f"{symbol}: "
-            f"${info['price']:,.2f} | "
-            f"24h: "
-            f"{info['change_24h']:.2f}%"
-        )
+    second = market.get_market_data()
+
+    print(
+        "Second request complete."
+    )
+
+    print(
+        "Cache age:",
+        f"{market.cache.age():.2f} seconds"
+    )
+
+    print(
+        "Assets:",
+        list(second.keys())
+    )
