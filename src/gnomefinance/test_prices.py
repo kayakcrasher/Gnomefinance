@@ -21,15 +21,15 @@ class FakeResponse:
 
 class TestPrices(unittest.TestCase):
 
-    @patch("src.gnomefinance.prices.cache.get", return_value=123.45)
+    @patch("gnomefinance.prices.cache.get", return_value=123.45)
     def test_get_price_uses_cache(self, mock_cache):
         price = get_price("bitcoin")
 
         self.assertEqual(price, 123.45)
         mock_cache.assert_called_once_with("bitcoin")
 
-    @patch("src.gnomefinance.prices.cache")
-    @patch("src.gnomefinance.prices.urllib.request.urlopen")
+    @patch("gnomefinance.prices.cache")
+    @patch("gnomefinance.prices.urllib.request.urlopen")
     def test_get_price_reads_api(self, mock_urlopen, mock_cache):
         mock_cache.get.return_value = None
 
@@ -45,8 +45,8 @@ class TestPrices(unittest.TestCase):
             65000.0,
         )
 
-    @patch("src.gnomefinance.prices.cache")
-    @patch("src.gnomefinance.prices.urllib.request.urlopen")
+    @patch("gnomefinance.prices.cache")
+    @patch("gnomefinance.prices.urllib.request.urlopen")
     def test_force_refresh_updates_price(
         self,
         mock_urlopen,
@@ -65,14 +65,15 @@ class TestPrices(unittest.TestCase):
             150.25,
         )
 
-    @patch("src.gnomefinance.prices.cache")
-    @patch("src.gnomefinance.prices.urllib.request.urlopen")
+    @patch("gnomefinance.prices.cache")
+    @patch("gnomefinance.prices.urllib.request.urlopen")
     def test_get_price_converts_api_failure_to_price_error(
         self,
         mock_urlopen,
         mock_cache,
     ):
         mock_cache.get.return_value = None
+
         mock_urlopen.side_effect = OSError(
             "network unavailable"
         )
