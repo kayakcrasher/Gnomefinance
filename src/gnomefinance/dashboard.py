@@ -2,11 +2,13 @@
 
 import tkinter as tk
 from tkinter import ttk
+
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 from gui_data import GUIData
 from chart_data import ChartData
+from market_data import MarketData
 
 
 class Dashboard:
@@ -15,9 +17,10 @@ class Dashboard:
     def __init__(self, root):
         self.root = root
         self.root.title("GNOMEfinance")
-        self.root.geometry("900x700")
+        self.root.geometry("950x750")
 
         self.data = GUIData()
+        self.market = MarketData()
 
         self.setup_ui()
         self.load_demo_data()
@@ -99,60 +102,4 @@ class Dashboard:
 
         figure.tight_layout()
 
-        canvas = FigureCanvasTkAgg(
-            figure,
-            master=self.chart_frame,
-        )
-
-        canvas.draw()
-        canvas.get_tk_widget().pack(
-            fill="both",
-            expand=True,
-        )
-
-    def refresh(self):
-        """Refresh dashboard data."""
-
-        for widget in self.asset_frame.winfo_children():
-            widget.destroy()
-
-        dashboard = self.data.get_dashboard_data()
-
-        self.total_label.config(
-            text=f"Total: ${dashboard['total_value']:,.2f}"
-        )
-
-        for network, asset in dashboard["assets"].items():
-
-            row = ttk.Frame(self.asset_frame)
-            row.pack(
-                fill="x",
-                pady=5,
-            )
-
-            name = ttk.Label(
-                row,
-                text=network.upper(),
-                font=("Arial", 12, "bold"),
-            )
-            name.pack(side="left")
-
-            value = ttk.Label(
-                row,
-                text=f"${asset['value_usd']:,.2f}",
-            )
-            value.pack(side="right")
-
-        self.create_chart()
-
-
-def main():
-    root = tk.Tk()
-
-    Dashboard(root)
-
-    root.mainloop()
-
-
-if __name__ == "__main__":
-    main()
+       
