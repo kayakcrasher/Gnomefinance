@@ -2,8 +2,11 @@
 
 import tkinter as tk
 from tkinter import ttk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 from gui_data import GUIData
+from chart_data import ChartData
 
 
 class Dashboard:
@@ -12,7 +15,7 @@ class Dashboard:
     def __init__(self, root):
         self.root = root
         self.root.title("GNOMEfinance")
-        self.root.geometry("700x500")
+        self.root.geometry("900x700")
 
         self.data = GUIData()
 
@@ -26,25 +29,30 @@ class Dashboard:
         title = ttk.Label(
             self.root,
             text="GNOMEfinance",
-            font=("Arial", 24, "bold"),
+            font=("Arial", 26, "bold"),
         )
-
-        title.pack(pady=20)
+        title.pack(pady=15)
 
         self.total_label = ttk.Label(
             self.root,
             text="Total: $0.00",
             font=("Arial", 18),
         )
-
-        self.total_label.pack(pady=10)
+        self.total_label.pack(pady=5)
 
         self.asset_frame = ttk.Frame(self.root)
         self.asset_frame.pack(
+            fill="x",
+            padx=30,
+            pady=10,
+        )
+
+        self.chart_frame = ttk.Frame(self.root)
+        self.chart_frame.pack(
             fill="both",
             expand=True,
             padx=30,
-            pady=20,
+            pady=10,
         )
 
         self.refresh_button = ttk.Button(
@@ -52,7 +60,6 @@ class Dashboard:
             text="Refresh",
             command=self.refresh,
         )
-
         self.refresh_button.pack(pady=15)
 
     def load_demo_data(self):
@@ -62,6 +69,46 @@ class Dashboard:
         self.data.add_asset("solana", 5.4)
         self.data.add_asset("cardano", 1500)
         self.data.add_asset("avalanche", 25)
+
+    def clear_chart(self):
+        """Remove the previous chart."""
+
+        for widget in self.chart_frame.winfo_children():
+            widget.destroy()
+
+    def create_chart(self):
+        """Create the portfolio chart."""
+
+        self.clear_chart()
+
+        portfolio = self.data.portfolio_service.portfolio
+        chart_data = ChartData(portfolio)
+
+        data = chart_data.get_chart_data()
+
+        figure = Figure(figsize=(7, 4), dpi=100)
+        axis = figure.add_subplot(111)
+
+        axis.bar(
+            data["labels"],
+            data["values"],
+        )
+
+        axis.set_title("Portfolio Value")
+        axis.set_ylabel("USD")
+
+        figure.tight_layout()
+
+        canvas = FigureCanvasTkAgg(
+            figure,
+            master=self.chart_frame,
+        )
+
+        canvas.draw()
+        canvas.get_tk_widget().pack(
+            fill="both",
+            expand=True,
+        )
 
     def refresh(self):
         """Refresh dashboard data."""
@@ -78,22 +125,25 @@ class Dashboard:
         for network, asset in dashboard["assets"].items():
 
             row = ttk.Frame(self.asset_frame)
-            row.pack(fill="x", pady=8)
+            row.pack(
+                fill="x",
+                pady=5,
+            )
 
             name = ttk.Label(
                 row,
                 text=network.upper(),
                 font=("Arial", 12, "bold"),
             )
-
             name.pack(side="left")
 
             value = ttk.Label(
                 row,
                 text=f"${asset['value_usd']:,.2f}",
             )
-
             value.pack(side="right")
+
+        self.create_chart()
 
 
 def main():
