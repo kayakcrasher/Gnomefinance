@@ -1,10 +1,9 @@
-# app_controller.py
-
 from gui_data import GUIData
 from market_data import MarketData
 from portfolio_allocation import PortfolioAllocation
 from portfolio_input import PortfolioInput
 from portfolio_storage import PortfolioStorage
+from wallet_service import WalletService
 
 
 class AppController:
@@ -14,96 +13,57 @@ class AppController:
         self.data = GUIData()
         self.market = MarketData()
         self.storage = PortfolioStorage()
+        self.wallet = WalletService()
+
+    # ---------------------------------------------------------
+    # Portfolio
+    # ---------------------------------------------------------
 
     def get_portfolio(self):
-        """Return the current portfolio."""
-
-        return (
-            self.data
-            .portfolio_service
-            .portfolio
-        )
+        return self.data.portfolio_service.portfolio
 
     def get_portfolio_input(self):
-        """Return the portfolio input handler."""
+        return PortfolioInput(self.get_portfolio())
 
-        return PortfolioInput(
-            self.get_portfolio()
-        )
-
-    def set_holding(
-        self,
-        network,
-        amount,
-    ):
-        """Set an exact asset holding."""
-
+    def set_holding(self, network, amount):
         inputs = self.get_portfolio_input()
+        inputs.set_asset(network, amount)
 
-        inputs.set_asset(
-            network,
-            amount,
-        )
-
-    def remove_holding(
-        self,
-        network,
-    ):
-        """Remove an asset."""
-
+    def remove_holding(self, network):
         inputs = self.get_portfolio_input()
-
-        inputs.remove_asset(
-            network
-        )
+        inputs.remove_asset(network)
 
     def clear_portfolio(self):
-        """Remove all portfolio assets."""
-
         inputs = self.get_portfolio_input()
-
         inputs.clear()
 
-    def save_portfolio(self):
-        """Save the current portfolio."""
+    # ---------------------------------------------------------
+    # Portfolio Storage
+    # ---------------------------------------------------------
 
-        self.storage.save(
-            self.get_portfolio()
-        )
+    def save_portfolio(self):
+        self.storage.save(self.get_portfolio())
 
     def load_portfolio(self):
-        """Load the saved portfolio."""
+        return self.storage.load(self.get_portfolio())
 
-        return self.storage.load(
-            self.get_portfolio()
-        )
+    # ---------------------------------------------------------
+    # Dashboard
+    # ---------------------------------------------------------
 
     def get_dashboard_data(self):
-        """Return portfolio dashboard data."""
-
-        return (
-            self.data
-            .get_dashboard_data()
-        )
+        return self.data.get_dashboard_data()
 
     def get_market_data(self):
-        """Return market data for portfolio assets."""
-
         portfolio = self.get_portfolio()
 
         networks = list(
-            portfolio
-            .get_all_assets()
-            .keys()
+            portfolio.get_all_assets().keys()
         )
 
-        return self.market.get_market_data(
-            networks
-        )
+        return self.market.get_market_data(networks)
 
     def get_allocation_data(self):
-        """Return portfolio allocation data."""
-
         allocation = PortfolioAllocation(
             self.get_portfolio()
         )
@@ -111,49 +71,73 @@ class AppController:
         return allocation.get_summary()
 
     def refresh_market_data(self):
-        """Clear the market cache."""
-
         self.market.clear_cache()
 
     def get_complete_dashboard(self):
-        """Return all data needed by the GUI."""
-
         return {
             "portfolio": self.get_dashboard_data(),
             "market": self.get_market_data(),
             "allocation": self.get_allocation_data(),
         }
 
+    # ---------------------------------------------------------
+    # Wallet / Blockchain
+    # ---------------------------------------------------------
+
+    def get_wallet_balance(self, network, address):
+        """Get a live blockchain wallet balance."""
+
+        return self.wallet.get_balance(
+            network,
+            address,
+        )
+
+    def get_wallet_transaction(
+        self,
+        network,
+        transaction_id,
+    ):
+        """Get blockchain transaction information."""
+
+        return self.wallet.get_transaction(
+            network,
+            transaction_id,
+        )
+
+    def check_network_connection(self, network):
+        """Check whether a blockchain network is reachable."""
+
+        return self.wallet.is_connected(network)
+
+    def get_network_info(self, network):
+        """Get basic information about a blockchain network."""
+
+        return self.wallet.get_network_info(network)
+
+    def get_network_status(self):
+        """Get connection status for registered networks."""
+
+        status = {}
+
+        for network_id in self.wallet.registry.list_registered():
+            status[network_id] = (
+                self.wallet.get_network_info(network_id)
+            )
+
+        return status
+
 
 if __name__ == "__main__":
-
     controller = AppController()
 
-    controller.set_holding(
-        "bitcoin",
-        0.065,
-    )
+    print("GNOMEfinance Controller")
+    print("-----------------------")
 
-    controller.set_holding(
-        "solana",
-        5.4,
-    )
+    status = controller.get_network_status()
 
-    controller.save_portfolio()
-
-    dashboard = (
-        controller
-        .get_complete_dashboard()
-    )
-
-    print(
-        "GNOMEfinance Controller"
-    )
-
-    print(
-        "----------------------"
-    )
-
-    print(
-        dashboard
-    )
+    for network_id, info in status.items():
+        print(
+            f"{info['name']} "
+            f"({info['symbol']}): "
+            f"{'CONNECTED' if info['connected'] else 'OFFLINE'}"
+        )
