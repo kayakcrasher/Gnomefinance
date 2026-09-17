@@ -10,10 +10,6 @@ app = Flask(__name__)
 portfolio = Portfolio()
 
 
-# ---------------------------------------------------------
-# GNOMEFINANCE API
-# ---------------------------------------------------------
-
 @app.route("/")
 def home():
     return """
@@ -26,33 +22,39 @@ def home():
     <title>GNOMEfinance</title>
 
     <style>
-        :root {
-            --bg: #0b100d;
-            --panel: #131b16;
-            --panel-light: #19241d;
-            --border: #2b3a30;
-            --text: #edf2ed;
-            --muted: #9aa89d;
-            --gold: #d6b36a;
-            --gold-light: #efd28c;
-            --green: #83b889;
-            --green-dark: #456b4b;
-            --red: #c87878;
-            --shadow: rgba(0, 0, 0, 0.35);
-        }
-
         * {
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
+        :root {
+            --bg: #0b0f0c;
+            --surface: #121914;
+            --surface-2: #18211a;
+            --border: #29362c;
+            --text: #f1f0e8;
+            --muted: #98a197;
+            --gold: #d5b56a;
+            --gold-soft: #ead08b;
+            --green: #8bb98c;
         }
 
         body {
             margin: 0;
             min-height: 100vh;
             color: var(--text);
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(95, 126, 91, 0.18),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 90% 85%,
+                    rgba(213, 181, 106, 0.08),
+                    transparent 25%
+                ),
+                var(--bg);
+
             font-family:
                 Inter,
                 system-ui,
@@ -60,83 +62,19 @@ def home():
                 BlinkMacSystemFont,
                 "Segoe UI",
                 sans-serif;
-
-            background:
-                radial-gradient(
-                    circle at 15% 10%,
-                    rgba(111, 148, 104, 0.12),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 85% 20%,
-                    rgba(214, 179, 106, 0.08),
-                    transparent 25%
-                ),
-                linear-gradient(
-                    135deg,
-                    #080c09,
-                    #101710 45%,
-                    #0a0f0b
-                );
         }
 
-        button {
-            font: inherit;
+        /* ---------- PAGE ---------- */
+
+        .page {
+            width: min(1180px, 92%);
+            margin: auto;
+            padding: 28px 0 50px;
         }
 
-        /* -------------------------------------------------
-           FOREST DECORATION
-        ------------------------------------------------- */
+        /* ---------- HEADER ---------- */
 
-        .forest-glow {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: -1;
-        }
-
-        .mushroom {
-            position: absolute;
-            opacity: 0.16;
-            user-select: none;
-        }
-
-        .mushroom.one {
-            left: 3%;
-            bottom: 8%;
-            font-size: 90px;
-            transform: rotate(-8deg);
-        }
-
-        .mushroom.two {
-            right: 5%;
-            top: 18%;
-            font-size: 65px;
-            transform: rotate(10deg);
-        }
-
-        .mushroom.three {
-            right: 15%;
-            bottom: 4%;
-            font-size: 45px;
-        }
-
-        /* -------------------------------------------------
-           APP SHELL
-        ------------------------------------------------- */
-
-        .app {
-            width: min(1400px, 94%);
-            margin: 0 auto;
-            padding: 24px 0 60px;
-        }
-
-        /* -------------------------------------------------
-           HEADER
-        ------------------------------------------------- */
-
-        .header {
+        header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -146,16 +84,17 @@ def home():
             margin-bottom: 18px;
 
             border: 1px solid var(--border);
-            border-radius: 22px;
+            border-radius: 20px;
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(25, 36, 29, 0.94),
-                    rgba(13, 19, 15, 0.96)
+                    rgba(24, 33, 26, 0.96),
+                    rgba(14, 19, 15, 0.96)
                 );
 
-            box-shadow: 0 18px 50px var(--shadow);
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.28);
         }
 
         .brand {
@@ -165,453 +104,357 @@ def home():
         }
 
         .gnome {
-            width: 70px;
-            height: 70px;
+            width: 66px;
+            height: 66px;
 
-            display: grid;
-            place-items: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
             border-radius: 50%;
-            border: 1px solid #5a5138;
 
             background:
                 radial-gradient(
-                    circle at 50% 30%,
-                    #e4c37d 0 18%,
+                    circle at 50% 38%,
+                    #e0c99a 0 18%,
                     transparent 19%
                 ),
                 linear-gradient(
                     145deg,
-                    #27372b,
-                    #111811
+                    #40513d,
+                    #182119
                 );
 
-            font-size: 42px;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid #4c5947;
+
+            font-size: 40px;
+
+            box-shadow:
+                inset 0 0 25px rgba(0, 0, 0, 0.35),
+                0 8px 25px rgba(0, 0, 0, 0.25);
         }
 
-        .brand h1 {
+        h1 {
             margin: 0;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            letter-spacing: 0.03em;
+
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            letter-spacing: 0.02em;
         }
 
-        .brand p {
-            margin: 3px 0 0;
+        .tagline {
+            margin: 4px 0 0;
             color: var(--muted);
             font-size: 0.9rem;
         }
 
-        .header-actions {
+        /* ---------- BUTTONS ---------- */
+
+        .actions {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
+            gap: 9px;
         }
 
-        /* -------------------------------------------------
-           BUTTONS
-        ------------------------------------------------- */
-
-        .btn {
+        button {
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 14px;
+            border-radius: 11px;
+
+            padding: 10px 15px;
 
             color: var(--text);
             background: rgba(255, 255, 255, 0.035);
 
             cursor: pointer;
+
             transition:
                 transform 0.15s ease,
                 border-color 0.15s ease,
                 background 0.15s ease;
         }
 
-        .btn:hover {
+        button:hover {
             transform: translateY(-1px);
             border-color: var(--gold);
-            background: rgba(214, 179, 106, 0.08);
+            background: rgba(213, 181, 106, 0.08);
         }
 
-        .btn-primary {
+        .refresh {
             color: #17140d;
-            border-color: var(--gold);
             background: var(--gold);
+            border-color: var(--gold);
             font-weight: 700;
         }
 
-        .btn-primary:hover {
-            background: var(--gold-light);
+        .refresh:hover {
+            background: var(--gold-soft);
         }
 
-        /* -------------------------------------------------
-           NAVIGATION
-        ------------------------------------------------- */
+        /* ---------- HERO ---------- */
 
-        .nav {
+        .hero {
+            position: relative;
+            overflow: hidden;
+
+            min-height: 300px;
+
             display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 8px;
+            align-items: center;
+
+            padding: 38px;
+
+            margin-bottom: 18px;
 
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 22px;
 
-            background: rgba(12, 17, 13, 0.8);
+            background:
+                linear-gradient(
+                    120deg,
+                    rgba(27, 39, 29, 0.98),
+                    rgba(14, 20, 15, 0.97)
+                );
 
-            scrollbar-width: thin;
+            box-shadow:
+                0 20px 55px rgba(0, 0, 0, 0.3);
         }
 
-        .nav button {
-            flex: 0 0 auto;
-            border: 0;
-            border-radius: 10px;
+        .hero-content {
+            max-width: 650px;
+            position: relative;
+            z-index: 2;
+        }
 
-            padding: 11px 16px;
+        .eyebrow {
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
 
+        .hero h2 {
+            margin: 10px 0 12px;
+
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size: clamp(2rem, 6vw, 3.6rem);
+            line-height: 1.05;
+        }
+
+        .hero p {
+            max-width: 580px;
             color: var(--muted);
-            background: transparent;
-            cursor: pointer;
+            line-height: 1.65;
         }
 
-        .nav button:hover,
-        .nav button.active {
-            color: var(--text);
-            background: var(--panel-light);
+        .hero-mushrooms {
+            position: absolute;
+            right: 30px;
+            bottom: 12px;
+
+            font-size: 100px;
+            opacity: 0.25;
+
+            transform: rotate(-4deg);
         }
 
-        .nav button.active {
-            box-shadow: inset 0 -2px 0 var(--gold);
+        /* ---------- SECTION TITLE ---------- */
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+
+            margin: 30px 2px 13px;
         }
 
-        /* -------------------------------------------------
-           SECTIONS
-        ------------------------------------------------- */
-
-        .section {
-            display: none;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section-title {
-            margin: 30px 0 14px;
-        }
-
-        .section-title h2 {
+        .section-heading h2 {
             margin: 0;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: 1.65rem;
+
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size: 1.55rem;
         }
 
-        .section-title p {
-            margin: 5px 0 0;
+        .section-heading span {
             color: var(--muted);
+            font-size: 0.85rem;
         }
 
-        /* -------------------------------------------------
-           CARDS
-        ------------------------------------------------- */
+        /* ---------- CARDS ---------- */
 
-        .grid {
+        .cards {
             display: grid;
-            gap: 14px;
-        }
-
-        .grid-4 {
             grid-template-columns: repeat(4, 1fr);
-        }
-
-        .grid-3 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .grid-2 {
-            grid-template-columns: repeat(2, 1fr);
+            gap: 13px;
         }
 
         .card {
+            padding: 19px;
+
             border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 20px;
+            border-radius: 17px;
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(24, 34, 27, 0.94),
-                    rgba(15, 22, 17, 0.94)
+                    rgba(24, 33, 26, 0.95),
+                    rgba(15, 21, 16, 0.95)
                 );
 
-            box-shadow: 0 12px 35px var(--shadow);
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.2);
+
+            transition:
+                transform 0.15s ease,
+                border-color 0.15s ease;
         }
 
-        .card-label {
-            color: var(--muted);
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.09em;
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #3d4b3f;
         }
 
-        .big-number {
-            margin-top: 8px;
-            font-size: clamp(1.5rem, 3vw, 2.1rem);
-            font-weight: 750;
-        }
-
-        .positive {
-            color: var(--green);
-        }
-
-        .negative {
-            color: var(--red);
-        }
-
-        .gold {
-            color: var(--gold-light);
-        }
-
-        /* -------------------------------------------------
-           MARKET CARDS
-        ------------------------------------------------- */
-
-        .coin-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .coin-top {
+        .card-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
         }
 
-        .coin-name {
+        .coin {
             font-weight: 700;
         }
 
-        .coin-symbol {
+        .symbol {
+            margin-top: 3px;
             color: var(--muted);
-            font-size: 0.78rem;
+            font-size: 0.75rem;
         }
 
-        .coin-price {
-            margin-top: 18px;
+        .coin-icon {
+            color: var(--gold);
+            font-size: 1.35rem;
+        }
+
+        .price {
+            margin-top: 22px;
+
             font-size: 1.55rem;
             font-weight: 750;
         }
 
-        .coin-change {
-            margin-top: 5px;
-            font-size: 0.9rem;
-        }
-
-        /* -------------------------------------------------
-           LARGE FEATURE CARD
-        ------------------------------------------------- */
-
-        .hero-card {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 20px;
-            align-items: stretch;
-        }
-
-        .hero-main {
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .hero-eyebrow {
-            color: var(--gold);
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.13em;
-        }
-
-        .hero-title {
-            margin: 10px 0;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(2rem, 5vw, 3.4rem);
-        }
-
-        .hero-text {
-            max-width: 650px;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        .hero-gnome {
-            min-height: 250px;
-            display: grid;
-            place-items: center;
-
-            border: 1px solid #3a4539;
-            border-radius: 16px;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(214, 179, 106, 0.12),
-                    transparent 65%
-                );
-
-            font-size: 130px;
-        }
-
-        /* -------------------------------------------------
-           CHART PLACEHOLDER
-        ------------------------------------------------- */
-
-        .chart {
-            min-height: 330px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border: 1px dashed #3a493d;
-            border-radius: 14px;
-
-            color: var(--muted);
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(20, 30, 23, 0.8),
-                    rgba(9, 14, 10, 0.8)
-                );
-        }
-
-        .chart-inner {
-            text-align: center;
-        }
-
-        .chart-icon {
-            font-size: 50px;
-            margin-bottom: 8px;
-        }
-
-        /* -------------------------------------------------
-           NEWS
-        ------------------------------------------------- */
-
-        .news-item {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-
-            padding: 17px 0;
-
-            border-bottom: 1px solid var(--border);
-        }
-
-        .news-item:last-child {
-            border-bottom: 0;
-        }
-
-        .news-title {
-            margin: 0 0 5px;
-            font-weight: 650;
-        }
-
-        .news-meta {
-            color: var(--muted);
-            font-size: 0.8rem;
-        }
-
-        .news-icon {
-            flex: 0 0 auto;
-            font-size: 26px;
-        }
-
-        /* -------------------------------------------------
-           NETWORKS
-        ------------------------------------------------- */
-
-        .network-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-
+        .status {
+            margin-top: 6px;
             color: var(--green);
-            font-size: 0.85rem;
+            font-size: 0.78rem;
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--green);
+        /* ---------- LOWER PANELS ---------- */
+
+        .lower {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 13px;
         }
 
-        /* -------------------------------------------------
-           FOOTER
-        ------------------------------------------------- */
+        .panel {
+            min-height: 190px;
+            padding: 21px;
+
+            border: 1px solid var(--border);
+            border-radius: 17px;
+
+            background: var(--surface);
+        }
+
+        .panel h3 {
+            margin: 0 0 8px;
+
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size: 1.25rem;
+        }
+
+        .panel p {
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .panel-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        /* ---------- FOOTER ---------- */
 
         footer {
             margin-top: 35px;
-            padding-top: 20px;
-
-            border-top: 1px solid var(--border);
 
             color: var(--muted);
             text-align: center;
-            font-size: 0.82rem;
+
+            font-size: 0.78rem;
         }
 
-        /* -------------------------------------------------
-           RESPONSIVE
-        ------------------------------------------------- */
+        /* ---------- MOBILE ---------- */
 
-        @media (max-width: 1000px) {
-            .grid-4 {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        @media (max-width: 850px) {
 
-            .hero-card {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 650px) {
-            .app {
-                width: 94%;
-                padding-top: 12px;
-            }
-
-            .header {
+            header {
                 align-items: flex-start;
                 flex-direction: column;
             }
 
-            .header-actions {
+            .actions {
                 width: 100%;
-                justify-content: flex-start;
             }
 
-            .grid-4,
-            .grid-3,
-            .grid-2 {
+            .actions button {
+                flex: 1;
+            }
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .lower {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+
+            .page {
+                width: 94%;
+                padding-top: 14px;
+            }
+
+            .hero {
+                padding: 27px;
+                min-height: 280px;
+            }
+
+            .hero-mushrooms {
+                right: -10px;
+                font-size: 80px;
+            }
+
+            .cards {
                 grid-template-columns: 1fr;
             }
 
@@ -620,407 +463,184 @@ def home():
                 height: 58px;
                 font-size: 34px;
             }
-
-            .hero-gnome {
-                min-height: 180px;
-                font-size: 90px;
-            }
-
-            .news-item {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="forest-glow">
-    <div class="mushroom one">🍄</div>
-    <div class="mushroom two">🍄</div>
-    <div class="mushroom three">🍄</div>
-</div>
-
-<div class="app">
+<div class="page">
 
     <!-- HEADER -->
 
-    <header class="header">
+    <header>
 
         <div class="brand">
-            <div class="gnome">🧙‍♂️</div>
+
+            <div class="gnome">
+                🧙‍♂️
+            </div>
 
             <div>
                 <h1>GNOMEfinance</h1>
-                <p>Your little corner of the financial forest.</p>
+                <div class="tagline">
+                    Crypto tools from a little corner of the forest.
+                </div>
             </div>
+
         </div>
 
-        <div class="header-actions">
-            <button class="btn" onclick="refreshData()">
+        <div class="actions">
+
+            <button class="refresh" onclick="location.reload()">
                 🍄 Refresh
             </button>
 
-            <button class="btn btn-primary" onclick="showSection('portfolio')">
-                💰 Portfolio
-            </button>
         </div>
 
     </header>
 
 
-    <!-- NAVIGATION -->
+    <!-- HERO -->
 
-    <nav class="nav">
+    <section class="hero">
 
-        <button class="active" onclick="showSection('dashboard', this)">
-            🏡 Dashboard
-        </button>
+        <div class="hero-content">
 
-        <button onclick="showSection('portfolio', this)">
-            💰 Portfolio
-        </button>
-
-        <button onclick="showSection('markets', this)">
-            📈 Markets
-        </button>
-
-        <button onclick="showSection('charts', this)">
-            📊 Charts
-        </button>
-
-        <button onclick="showSection('news', this)">
-            📰 News
-        </button>
-
-        <button onclick="showSection('networks', this)">
-            🌐 Networks
-        </button>
-
-    </nav>
-
-
-    <!-- =================================================
-         DASHBOARD
-    ================================================== -->
-
-    <section id="dashboard" class="section active">
-
-        <div class="section-title">
-            <h2>Welcome back to the forest.</h2>
-            <p>The gnome is watching the markets.</p>
-        </div>
-
-
-        <div class="card hero-card">
-
-            <div class="hero-main">
-
-                <div>
-                    <div class="hero-eyebrow">
-                        GNOMEfinance command center
-                    </div>
-
-                    <div class="hero-title">
-                        Grow slow.<br>
-                        Build something real.
-                    </div>
-
-                    <div class="hero-text">
-                        Track your crypto, watch the markets, follow
-                        your networks, and eventually connect the whole
-                        forest to your DApp.
-                    </div>
-                </div>
-
-                <div>
-                    <button class="btn btn-primary"
-                            onclick="showSection('markets')">
-                        Explore Markets →
-                    </button>
-                </div>
-
+            <div class="eyebrow">
+                Welcome to the forest
             </div>
 
-            <div class="hero-gnome">
-                🧙‍♂️🍄
-            </div>
+            <h2>
+                Watch your treasure grow.
+            </h2>
 
-        </div>
-
-
-        <div class="section-title">
-            <h2>Market Watch</h2>
-            <p>A quick look at the coins we're tracking.</p>
-        </div>
-
-
-        <div id="dashboard-markets" class="grid grid-4">
-
-            <div class="card coin-card">
-                <div class="coin-top">
-                    <div>
-                        <div class="coin-name">Bitcoin</div>
-                        <div class="coin-symbol">BTC</div>
-                    </div>
-                    <span>₿</span>
-                </div>
-
-                <div class="coin-price" id="btc-price">Loading...</div>
-                <div class="coin-change">Waiting for market data</div>
-            </div>
-
-
-            <div class="card coin-card">
-                <div class="coin-top">
-                    <div>
-                        <div class="coin-name">Ethereum</div>
-                        <div class="coin-symbol">ETH</div>
-                    </div>
-                    <span>Ξ</span>
-                </div>
-
-                <div class="coin-price" id="eth-price">Loading...</div>
-                <div class="coin-change">Waiting for market data</div>
-            </div>
-
-
-            <div class="card coin-card">
-                <div class="coin-top">
-                    <div>
-                        <div class="coin-name">Solana</div>
-                        <div class="coin-symbol">SOL</div>
-                    </div>
-                    <span>◎</span>
-                </div>
-
-                <div class="coin-price" id="sol-price">Loading...</div>
-                <div class="coin-change">Waiting for market data</div>
-            </div>
-
-
-            <div class="card coin-card">
-                <div class="coin-top">
-                    <div>
-                        <div class="coin-name">Cardano</div>
-                        <div class="coin-symbol">ADA</div>
-                    </div>
-                    <span>₳</span>
-                </div>
-
-                <div class="coin-price" id="ada-price">Loading...</div>
-                <div class="coin-change">Waiting for market data</div>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         PORTFOLIO
-    ================================================== -->
-
-    <section id="portfolio" class="section">
-
-        <div class="section-title">
-            <h2>Portfolio</h2>
-            <p>Your treasure chest.</p>
-        </div>
-
-
-        <div class="grid grid-4">
-
-            <div class="card">
-                <div class="card-label">Total Value</div>
-                <div class="big-number gold" id="portfolio-total">
-                    Loading...
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-label">24h Change</div>
-                <div class="big-number positive">
-                    —
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-label">BTC Allocation</div>
-                <div class="big-number">
-                    —
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-label">Staking</div>
-                <div class="big-number positive">
-                    Active
-                </div>
-            </div>
-
-        </div>
-
-
-        <div class="section-title">
-            <h2>Holdings</h2>
-        </div>
-
-        <div class="card" id="portfolio-holdings">
-            <p class="muted">
-                Portfolio data will appear here.
+            <p>
+                GNOMEfinance is your personal crypto command center —
+                simple, clean, and built one little piece at a time.
             </p>
+
+            <button onclick="document
+                .getElementById('markets')
+                .scrollIntoView({ behavior: 'smooth' })">
+                Explore the markets →
+            </button>
+
+        </div>
+
+        <div class="hero-mushrooms">
+            🍄 🍄
         </div>
 
     </section>
 
 
-    <!-- =================================================
-         MARKETS
-    ================================================== -->
+    <!-- MARKET SECTION -->
 
-    <section id="markets" class="section">
+    <div class="section-heading">
 
-        <div class="section-title">
-            <h2>Markets</h2>
-            <p>The forest's market board.</p>
-        </div>
+        <h2>Market Watch</h2>
+
+        <span>
+            Live data from your existing API
+        </span>
+
+    </div>
 
 
-        <div class="grid grid-3">
+    <section class="cards" id="markets">
 
-            <div class="card coin-card">
-                <div class="coin-name">Bitcoin</div>
-                <div class="coin-symbol">BTC</div>
-                <div class="coin-price" id="market-btc">Loading...</div>
+        <div class="card">
+
+            <div class="card-top">
+
+                <div>
+                    <div class="coin">Bitcoin</div>
+                    <div class="symbol">BTC</div>
+                </div>
+
+                <div class="coin-icon">₿</div>
+
             </div>
 
-            <div class="card coin-card">
-                <div class="coin-name">Ethereum</div>
-                <div class="coin-symbol">ETH</div>
-                <div class="coin-price" id="market-eth">Loading...</div>
+            <div class="price" id="btc-price">
+                Loading...
             </div>
 
-            <div class="card coin-card">
-                <div class="coin-name">Solana</div>
-                <div class="coin-symbol">SOL</div>
-                <div class="coin-price" id="market-sol">Loading...</div>
+            <div class="status">
+                ● Market data
             </div>
 
-            <div class="card coin-card">
-                <div class="coin-name">Cardano</div>
-                <div class="coin-symbol">ADA</div>
-                <div class="coin-price" id="market-ada">Loading...</div>
-            </div>
-
-            <div class="card coin-card">
-                <div class="coin-name">Avalanche</div>
-                <div class="coin-symbol">AVAX</div>
-                <div class="coin-price" id="market-avax">Loading...</div>
-            </div>
-
-            <div class="card coin-card">
-                <div class="coin-name">Sui</div>
-                <div class="coin-symbol">SUI</div>
-                <div class="coin-price" id="market-sui">Loading...</div>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         CHARTS
-    ================================================== -->
-
-    <section id="charts" class="section">
-
-        <div class="section-title">
-            <h2>Charts</h2>
-            <p>Where the numbers start telling stories.</p>
         </div>
 
 
         <div class="card">
 
-            <div class="header-actions">
-                <button class="btn">24H</button>
-                <button class="btn">7D</button>
-                <button class="btn">30D</button>
-                <button class="btn">1Y</button>
-            </div>
+            <div class="card-top">
 
-            <br>
-
-            <div class="chart">
-
-                <div class="chart-inner">
-                    <div class="chart-icon">📊</div>
-
-                    <strong>Chart engine ready</strong>
-
-                    <p>
-                        Historical API data will be rendered here.
-                    </p>
+                <div>
+                    <div class="coin">Ethereum</div>
+                    <div class="symbol">ETH</div>
                 </div>
 
+                <div class="coin-icon">Ξ</div>
+
             </div>
 
-        </div>
+            <div class="price" id="eth-price">
+                Loading...
+            </div>
 
-    </section>
+            <div class="status">
+                ● Market data
+            </div>
 
-
-    <!-- =================================================
-         NEWS
-    ================================================== -->
-
-    <section id="news" class="section">
-
-        <div class="section-title">
-            <h2>News from the Forest</h2>
-            <p>Crypto headlines will live here.</p>
         </div>
 
 
         <div class="card">
 
-            <div class="news-item">
+            <div class="card-top">
 
                 <div>
-                    <p class="news-title">
-                        🍄 News API connection coming next
-                    </p>
-
-                    <div class="news-meta">
-                        GNOMEfinance • News feed
-                    </div>
+                    <div class="coin">Solana</div>
+                    <div class="symbol">SOL</div>
                 </div>
 
-                <div class="news-icon">
-                    📰
-                </div>
+                <div class="coin-icon">◎</div>
 
             </div>
 
+            <div class="price" id="sol-price">
+                Loading...
+            </div>
 
-            <div class="news-item">
+            <div class="status">
+                ● Market data
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-top">
 
                 <div>
-                    <p class="news-title">
-                        Bitcoin, Solana, Cardano and more can be filtered here.
-                    </p>
-
-                    <div class="news-meta">
-                        Ready for API integration
-                    </div>
+                    <div class="coin">Cardano</div>
+                    <div class="symbol">ADA</div>
                 </div>
 
-                <div class="news-icon">
-                    🌲
-                </div>
+                <div class="coin-icon">₳</div>
 
+            </div>
+
+            <div class="price" id="ada-price">
+                Loading...
+            </div>
+
+            <div class="status">
+                ● Market data
             </div>
 
         </div>
@@ -1028,88 +648,66 @@ def home():
     </section>
 
 
-    <!-- =================================================
-         NETWORKS
-    ================================================== -->
+    <!-- LOWER PANELS -->
 
-    <section id="networks" class="section">
+    <div class="section-heading">
 
-        <div class="section-title">
-            <h2>Networks</h2>
-            <p>The foundations of the future GNOMEfinance DApp.</p>
+        <h2>GNOME's Workbench</h2>
+
+        <span>
+            More tools coming soon
+        </span>
+
+    </div>
+
+
+    <section class="lower">
+
+        <div class="panel">
+
+            <h3>🍄 Portfolio</h3>
+
+            <p>
+                Your holdings, allocation, staking, and performance
+                will live here as we build the next layer.
+            </p>
+
+            <div class="panel-buttons">
+
+                <button>
+                    View Portfolio
+                </button>
+
+                <button>
+                    Staking
+                </button>
+
+            </div>
+
         </div>
 
 
-        <div class="grid grid-3">
+        <div class="panel">
 
-            <div class="card">
+            <h3>🌲 Networks</h3>
 
-                <div class="coin-top">
-                    <strong>Bitcoin</strong>
+            <p>
+                The foundation for the eventual GNOMEfinance DApp.
+            </p>
 
-                    <span class="network-status">
-                        <span class="status-dot"></span>
-                        Ready
-                    </span>
-                </div>
+            <div class="panel-buttons">
 
-                <p class="news-meta">
-                    BTC network foundation
-                </p>
+                <button>
+                    Bitcoin
+                </button>
 
-            </div>
+                <button>
+                    Solana
+                </button>
 
-
-            <div class="card">
-
-                <div class="coin-top">
-                    <strong>Solana</strong>
-
-                    <span class="network-status">
-                        <span class="status-dot"></span>
-                        Ready
-                    </span>
-                </div>
-
-                <p class="news-meta">
-                    SOL network foundation
-                </p>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="coin-top">
-                    <strong>Cardano</strong>
-
-                    <span class="network-status">
-                        <span class="status-dot"></span>
-                        Ready
-                    </span>
-                </div>
-
-                <p class="news-meta">
-                    ADA network foundation
-                </p>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="coin-top">
-                    <strong>Avalanche</strong>
-
-                    <span class="network-status">
-                        <span class="status-dot"></span>
-                        Ready
-                    </span>
-                </div>
-
-                <p class="news-meta">
-                    AVAX network foundation
-                </p>
+                <button>
+                    Cardano
+                </button>
 
             </div>
 
@@ -1119,7 +717,7 @@ def home():
 
 
     <footer>
-        🍄 GNOMEfinance • Built one little piece at a time.
+        🍄 GNOMEfinance — built one block at a time.
     </footer>
 
 </div>
@@ -1127,270 +725,119 @@ def home():
 
 <script>
 
-    // -----------------------------------------------------
-    // NAVIGATION
-    // -----------------------------------------------------
-
-    function showSection(sectionId, button) {
-
-        document.querySelectorAll(".section").forEach(section => {
-            section.classList.remove("active");
-        });
-
-        const section = document.getElementById(sectionId);
-
-        if (section) {
-            section.classList.add("active");
-        }
-
-        document.querySelectorAll(".nav button").forEach(btn => {
-            btn.classList.remove("active");
-        });
-
-        if (button) {
-            button.classList.add("active");
-        }
-    }
-
-
-    // -----------------------------------------------------
-    // API HELPERS
-    // -----------------------------------------------------
-
     async function loadPrices() {
 
         try {
 
-            const response = await fetch("/api/prices");
+            const response =
+                await fetch("/api/prices");
 
             if (!response.ok) {
-                throw new Error("Price API returned an error.");
+                throw new Error("Price request failed");
             }
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
-            updatePrices(data);
-
-        } catch (error) {
-
-            console.error("GNOMEfinance price error:", error);
-
-            setText("btc-price", "Unavailable");
-            setText("eth-price", "Unavailable");
-            setText("sol-price", "Unavailable");
-            setText("ada-price", "Unavailable");
-
-            setText("market-btc", "Unavailable");
-            setText("market-eth", "Unavailable");
-            setText("market-sol", "Unavailable");
-            setText("market-ada", "Unavailable");
-            setText("market-avax", "Unavailable");
-            setText("market-sui", "Unavailable");
-        }
-    }
-
-
-    function updatePrices(data) {
-
-        const lookup = {
-            btc: ["btc-price", "market-btc"],
-            bitcoin: ["btc-price", "market-btc"],
-
-            eth: ["eth-price", "market-eth"],
-            ethereum: ["eth-price", "market-eth"],
-
-            sol: ["sol-price", "market-sol"],
-            solana: ["sol-price", "market-sol"],
-
-            ada: ["ada-price", "market-ada"],
-            cardano: ["ada-price", "market-ada"],
-
-            avax: ["market-avax"],
-            avalanche: ["market-avax"],
-
-            sui: ["market-sui"]
-        };
-
-        Object.keys(data || {}).forEach(key => {
-
-            const value = data[key];
-
-            const targets = lookup[key.toLowerCase()];
-
-            if (!targets) {
-                return;
-            }
-
-            targets.forEach(target => {
-                setText(target, formatPrice(value));
-            });
-        });
-    }
-
-
-    function formatPrice(value) {
-
-        if (typeof value === "number") {
-            return "$" + value.toLocaleString(
-                undefined,
-                {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 8
-                }
+            updatePrice(
+                "btc-price",
+                data.bitcoin
             );
-        }
 
-        if (value && typeof value === "object") {
+            updatePrice(
+                "eth-price",
+                data.ethereum
+            );
 
-            if (typeof value.usd === "number") {
-                return "$" + value.usd.toLocaleString(
-                    undefined,
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 8
-                    }
-                );
-            }
+            updatePrice(
+                "sol-price",
+                data.solana
+            );
 
-            if (typeof value.price === "number") {
-                return "$" + value.price.toLocaleString(
-                    undefined,
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 8
-                    }
-                );
-            }
-        }
-
-        return String(value);
-    }
-
-
-    function setText(id, value) {
-
-        const element = document.getElementById(id);
-
-        if (element) {
-            element.textContent = value;
-        }
-    }
-
-
-    // -----------------------------------------------------
-    // PORTFOLIO
-    // -----------------------------------------------------
-
-    async function loadPortfolio() {
-
-        try {
-
-            const response = await fetch("/api/portfolio");
-
-            if (!response.ok) {
-                throw new Error("Portfolio API returned an error.");
-            }
-
-            const data = await response.json();
-
-            renderPortfolio(data);
+            updatePrice(
+                "ada-price",
+                data.cardano
+            );
 
         } catch (error) {
 
             console.error(
-                "GNOMEfinance portfolio error:",
+                "GNOMEfinance price error:",
                 error
             );
+
+            document.getElementById(
+                "btc-price"
+            ).textContent = "Unavailable";
+
+            document.getElementById(
+                "eth-price"
+            ).textContent = "Unavailable";
+
+            document.getElementById(
+                "sol-price"
+            ).textContent = "Unavailable";
+
+            document.getElementById(
+                "ada-price"
+            ).textContent = "Unavailable";
         }
     }
 
 
-    function renderPortfolio(data) {
+    function updatePrice(elementId, value) {
 
-        if (!data) {
+        const element =
+            document.getElementById(elementId);
+
+        if (!element) {
             return;
         }
 
-        const total =
-            data.total_value ??
-            data.total ??
-            data.value;
+        if (
+            typeof value === "number"
+        ) {
 
-        if (total !== undefined) {
-            setText(
-                "portfolio-total",
-                formatPrice(total)
-            );
-        }
+            element.textContent =
+                "$" +
+                value.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 8
+                    }
+                );
 
-        const holdings =
-            data.holdings ??
-            data.assets ??
-            data;
-
-        const container =
-            document.getElementById("portfolio-holdings");
-
-        if (!container || typeof holdings !== "object") {
             return;
         }
 
-        if (Array.isArray(holdings)) {
+        if (
+            value &&
+            typeof value === "object" &&
+            typeof value.usd === "number"
+        ) {
 
-            container.innerHTML =
-                holdings.map(item => {
+            element.textContent =
+                "$" +
+                value.usd.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 8
+                    }
+                );
 
-                    const name =
-                        item.name ??
-                        item.symbol ??
-                        "Asset";
-
-                    const amount =
-                        item.amount ??
-                        item.quantity ??
-                        "";
-
-                    return `
-                        <div class="news-item">
-                            <div>
-                                <strong>${name}</strong>
-                            </div>
-                            <div class="gold">
-                                ${amount}
-                            </div>
-                        </div>
-                    `;
-
-                }).join("");
-
+            return;
         }
 
+        element.textContent =
+            String(value ?? "Unavailable");
     }
 
-
-    // -----------------------------------------------------
-    // REFRESH
-    // -----------------------------------------------------
-
-    async function refreshData() {
-
-        await Promise.all([
-            loadPrices(),
-            loadPortfolio()
-        ]);
-
-    }
-
-
-    // -----------------------------------------------------
-    // STARTUP
-    // -----------------------------------------------------
 
     document.addEventListener(
         "DOMContentLoaded",
-        () => {
-            refreshData();
-        }
+        loadPrices
     );
 
 </script>
@@ -1400,10 +847,6 @@ def home():
 """
 
 
-# ---------------------------------------------------------
-# PRICE API
-# ---------------------------------------------------------
-
 @app.route("/api/prices")
 def prices():
 
@@ -1412,8 +855,6 @@ def prices():
         "ethereum",
         "solana",
         "cardano",
-        "avalanche-2",
-        "sui"
     ]
 
     result = {}
@@ -1424,16 +865,13 @@ def prices():
             result[coin] = get_price(coin)
 
         except Exception as error:
+
             result[coin] = {
                 "error": str(error)
             }
 
     return jsonify(result)
 
-
-# ---------------------------------------------------------
-# HISTORY API
-# ---------------------------------------------------------
 
 @app.route("/api/history/<coin_id>")
 def history(coin_id):
@@ -1450,10 +888,6 @@ def history(coin_id):
             "error": str(error)
         }), 500
 
-
-# ---------------------------------------------------------
-# PORTFOLIO API
-# ---------------------------------------------------------
 
 @app.route("/api/portfolio")
 def portfolio_data():
