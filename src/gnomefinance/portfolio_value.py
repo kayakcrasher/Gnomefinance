@@ -1,46 +1,54 @@
 # portfolio_value.py
 
-from portfolio import Portfolio
-from price_service import get_prices
+from price_service import PriceService
 
 
-def calculate_values(portfolio):
-    """Calculate the USD value of each portfolio asset."""
+class PortfolioValue:
+    """Calculate the USD value of a portfolio."""
 
-    prices = get_prices(portfolio.get_all_assets())
+    def __init__(self, portfolio):
+        self.portfolio = portfolio
+        self.price_service = PriceService()
 
-    values = {}
+    def get_values(self):
+        """Calculate the USD value of each asset."""
 
-    for network, amount in portfolio.get_all_assets().items():
-        price = prices.get(network, 0)
-        values[network] = amount * price
+        assets = self.portfolio.get_all_assets()
+        prices = self.price_service.get_prices(assets)
 
-    return values
+        values = {}
 
+        for network, amount in assets.items():
+            price = prices.get(network, 0)
+            values[network] = amount * price
 
-def calculate_total(values):
-    """Calculate total portfolio value."""
+        return values
 
-    return sum(values.values())
+    def get_total(self):
+        """Calculate the total portfolio value."""
 
+        values = self.get_values()
 
-def display_values(portfolio):
-    """Display portfolio values and total."""
+        return sum(values.values())
 
-    values = calculate_values(portfolio)
-    total = calculate_total(values)
+    def display(self):
+        """Display portfolio values."""
 
-    print("GNOMEfinance Portfolio Value")
-    print("----------------------------")
+        values = self.get_values()
 
-    for network, value in values.items():
-        print(f"{network}: ${value:,.2f}")
+        print("GNOMEfinance Portfolio Value")
+        print("----------------------------")
 
-    print("----------------------------")
-    print(f"TOTAL: ${total:,.2f}")
+        for network, value in values.items():
+            print(f"{network}: ${value:,.2f}")
+
+        print("----------------------------")
+        print(f"TOTAL: ${self.get_total():,.2f}")
 
 
 if __name__ == "__main__":
+    from portfolio import Portfolio
+
     portfolio = Portfolio()
 
     portfolio.add_asset("bitcoin", 0.065)
@@ -48,4 +56,6 @@ if __name__ == "__main__":
     portfolio.add_asset("cardano", 1500)
     portfolio.add_asset("avalanche", 25)
 
-    display_values(portfolio)
+    portfolio_value = PortfolioValue(portfolio)
+
+    portfolio_value.display()
