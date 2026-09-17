@@ -1,6 +1,7 @@
 # network_registry.py
 
 from network_config import NETWORKS
+from solana_network import SolanaNetwork
 
 
 class NetworkRegistry:
@@ -8,6 +9,8 @@ class NetworkRegistry:
 
     def __init__(self):
         self.networks = {}
+
+        self.register_default_networks()
 
     def register(
         self,
@@ -22,6 +25,14 @@ class NetworkRegistry:
             )
 
         self.networks[network_id] = network
+
+    def register_default_networks(self):
+        """Register currently implemented networks."""
+
+        self.register(
+            "solana",
+            SolanaNetwork(),
+        )
 
     def unregister(
         self,
@@ -78,15 +89,13 @@ class NetworkRegistry:
             "-----------------------------"
         )
 
-        for network_id in self.networks:
-
-            info = NETWORKS[
-                network_id
-            ]
+        for network_id, network in (
+            self.networks.items()
+        ):
 
             print(
-                f"{info['name']} "
-                f"({info['symbol']})"
+                f"{network.get_network_name()} "
+                f"({network.get_symbol()})"
             )
 
 
@@ -94,25 +103,30 @@ if __name__ == "__main__":
 
     registry = NetworkRegistry()
 
-    print(
-        "Available networks:"
-    )
-
-    for network_id in (
-        registry.list_available()
-    ):
-
-        info = NETWORKS[
-            network_id
-        ]
-
-        print(
-            f"- {info['name']} "
-            f"({info['symbol']})"
-        )
+    registry.display()
 
     print()
 
+    solana = registry.get(
+        "solana"
+    )
+
     print(
-        "Registry ready."
+        "Solana registered:",
+        registry.has("solana"),
+    )
+
+    print(
+        "Network:",
+        solana.get_network_name(),
+    )
+
+    print(
+        "Symbol:",
+        solana.get_symbol(),
+    )
+
+    print(
+        "Connected:",
+        solana.is_connected(),
     )
