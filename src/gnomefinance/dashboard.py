@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 from gui_data import GUIData
 from chart_data import ChartData
 from market_data import MarketData
+from portfolio_allocation import PortfolioAllocation
 from asset_card import AssetCard
 
 
@@ -35,16 +36,19 @@ class Dashboard:
             text="GNOMEfinance",
             font=("Arial", 28, "bold"),
         )
+
         title.pack(pady=15)
 
         self.total_label = ttk.Label(
             self.root,
-            text="Total: $0.00",
+            text="Total Portfolio: $0.00",
             font=("Arial", 20),
         )
+
         self.total_label.pack(pady=5)
 
         self.asset_frame = ttk.Frame(self.root)
+
         self.asset_frame.pack(
             fill="x",
             padx=25,
@@ -52,6 +56,7 @@ class Dashboard:
         )
 
         self.chart_frame = ttk.Frame(self.root)
+
         self.chart_frame.pack(
             fill="both",
             expand=True,
@@ -64,6 +69,7 @@ class Dashboard:
             text="Refresh Market Data",
             command=self.refresh,
         )
+
         self.refresh_button.pack(pady=15)
 
     def load_demo_data(self):
@@ -86,7 +92,12 @@ class Dashboard:
         for widget in self.chart_frame.winfo_children():
             widget.destroy()
 
-    def create_asset_cards(self, dashboard, market_data):
+    def create_asset_cards(
+        self,
+        dashboard,
+        market_data,
+        allocation_data,
+    ):
         """Create a card for each portfolio asset."""
 
         self.clear_assets()
@@ -98,8 +109,25 @@ class Dashboard:
                 {},
             )
 
-            price = info.get("price", 0)
-            change = info.get("change_24h", 0)
+            allocation = allocation_data.get(
+                network,
+                {},
+            )
+
+            price = info.get(
+                "price",
+                0,
+            )
+
+            change = info.get(
+                "change_24h",
+                0,
+            )
+
+            percentage = allocation.get(
+                "percentage",
+                0,
+            )
 
             card = AssetCard(
                 self.asset_frame,
@@ -108,6 +136,7 @@ class Dashboard:
                 value=asset["value_usd"],
                 price=price,
                 change_24h=change,
+                percentage=percentage,
             )
 
             card.pack(
@@ -125,6 +154,7 @@ class Dashboard:
         )
 
         chart_data = ChartData(portfolio)
+
         data = chart_data.get_chart_data()
 
         figure = Figure(
@@ -139,7 +169,10 @@ class Dashboard:
             data["values"],
         )
 
-        axis.set_title("Portfolio Value")
+        axis.set_title(
+            "GNOMEfinance Portfolio Value"
+        )
+
         axis.set_ylabel("USD")
 
         figure.tight_layout()
@@ -168,7 +201,21 @@ class Dashboard:
         )
 
         market_data = (
-            self.market.get_market_data(networks)
+            self.market.get_market_data(
+                networks
+            )
+        )
+
+        portfolio = (
+            self.data.portfolio_service.portfolio
+        )
+
+        allocation_service = (
+            PortfolioAllocation(portfolio)
+        )
+
+        allocation_data = (
+            allocation_service.get_summary()
         )
 
         self.total_label.config(
@@ -181,12 +228,15 @@ class Dashboard:
         self.create_asset_cards(
             dashboard,
             market_data,
+            allocation_data,
         )
 
         self.create_chart()
 
 
 def main():
+    """Start GNOMEfinance."""
+
     root = tk.Tk()
 
     Dashboard(root)
