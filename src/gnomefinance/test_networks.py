@@ -3,34 +3,23 @@ from wallet_service import WalletService
 
 
 def test_registry():
-    print("Testing Network Registry...")
     registry = NetworkRegistry()
 
     networks = registry.list_registered()
 
     assert "solana" in networks
 
-    print("PASS: Solana is registered.")
 
-
-def test_solana_info():
-    print("Testing Solana network information...")
+def test_solana_network_information():
     wallet_service = WalletService()
 
-    info = wallet_service.get_network_info("solana")
+    network = wallet_service.get_network("solana")
 
-    assert info["name"] == "Solana"
-    assert info["symbol"] == "SOL"
-    assert "connected" in info
-
-    print("PASS: Solana network information is valid.")
-    print(f"Network: {info['name']}")
-    print(f"Symbol: {info['symbol']}")
-    print(f"Connected: {info['connected']}")
+    assert network.get_network_name() == "Solana"
+    assert network.get_symbol() == "SOL"
 
 
 def test_address_validation():
-    print("Testing Solana address validation...")
     wallet_service = WalletService()
 
     network = wallet_service.get_network("solana")
@@ -41,20 +30,12 @@ def test_address_validation():
     assert network.validate_address(valid_length_address)
     assert not network.validate_address(invalid_address)
 
-    print("PASS: Basic address validation works.")
 
+def test_unknown_network():
+    wallet_service = WalletService()
 
-def run_tests():
-    print("GNOMEfinance Network Tests")
-    print("==========================")
-
-    test_registry()
-    test_solana_info()
-    test_address_validation()
-
-    print("==========================")
-    print("ALL TESTS PASSED")
-
-
-if __name__ == "__main__":
-    run_tests()
+    try:
+        wallet_service.get_network("ethereum")
+        assert False, "Expected ValueError"
+    except ValueError:
+        pass
