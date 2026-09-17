@@ -1,14 +1,7 @@
 # market_data.py
 
 from api_client import APIClient
-
-
-COINGECKO_IDS = {
-    "bitcoin": "bitcoin",
-    "solana": "solana",
-    "cardano": "cardano",
-    "avalanche": "avalanche",
-}
+from network_config import NETWORKS
 
 
 class MarketData:
@@ -23,13 +16,23 @@ class MarketData:
         """Return market data for selected networks."""
 
         if networks is None:
-            networks = list(COINGECKO_IDS.keys())
+            networks = list(NETWORKS.keys())
 
-        coin_ids = [
-            COINGECKO_IDS[network]
-            for network in networks
-            if network in COINGECKO_IDS
-        ]
+        coin_ids = []
+
+        for network in networks:
+
+            info = NETWORKS.get(network)
+
+            if info is None:
+                continue
+
+            coin_id = info.get(
+                "coingecko_id"
+            )
+
+            if coin_id:
+                coin_ids.append(coin_id)
 
         if not coin_ids:
             return {}
@@ -46,38 +49,55 @@ class MarketData:
         market_data = {}
 
         for coin in data:
-            network = next(
-                (
-                    network
-                    for network, coin_id in COINGECKO_IDS.items()
-                    if coin_id == coin["id"]
-                ),
-                None,
-            )
 
-            if network:
-                market_data[network] = {
-                    "price": coin["current_price"],
-                    "change_24h": coin[
-                        "price_change_percentage_24h"
-                    ],
-                    "market_cap": coin["market_cap"],
-                    "volume_24h": coin[
-                        "total_volume"
-                    ],
-                }
+            network = None
+
+            for network_id, info in NETWORKS.items():
+
+                if info.get(
+                    "coingecko_id"
+                ) == coin["id"]:
+
+                    network = network_id
+                    break
+
+            if network is None:
+                continue
+
+            market_data[network] = {
+                "price": coin[
+                    "current_price"
+                ],
+                "change_24h": coin.get(
+                    "price_change_percentage_24h"
+                ) or 0,
+                "market_cap": coin[
+                    "market_cap"
+                ],
+                "volume_24h": coin[
+                    "total_volume"
+                ],
+            }
 
         return market_data
 
 
 if __name__ == "__main__":
+
     market = MarketData()
 
     data = market.get_market_data()
 
+    print("GNOMEfinance Market Data")
+    print("------------------------")
+
     for network, info in data.items():
+
+        symbol = NETWORKS[network]["symbol"]
+
         print(
-            f"{network.upper()}: "
+            f"{symbol}: "
             f"${info['price']:,.2f} | "
-            f"24h: {info['change_24h']:.2f}%"
+            f"24h: "
+            f"{info['change_24h']:.2f}%"
         )
