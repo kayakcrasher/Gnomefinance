@@ -1,6 +1,6 @@
 # price_service.py
 
-import requests
+from api_client import APIClient
 
 
 COINGECKO_IDS = {
@@ -11,46 +11,55 @@ COINGECKO_IDS = {
 }
 
 
-def get_prices(networks=None):
-    """Fetch current USD prices for selected networks."""
+class PriceService:
+    """Fetch cryptocurrency prices for GNOMEfinance."""
 
-    if networks is None:
-        networks = list(COINGECKO_IDS.keys())
+    def __init__(self):
+        self.client = APIClient(
+            "https://api.coingecko.com/api/v3"
+        )
 
-    coin_ids = [
-        COINGECKO_IDS[network]
-        for network in networks
-        if network in COINGECKO_IDS
-    ]
+    def get_prices(self, networks=None):
+        """Return USD prices for selected networks."""
 
-    if not coin_ids:
-        return {}
+        if networks is None:
+            networks = list(COINGECKO_IDS.keys())
 
-    url = "https://api.coingecko.com/api/v3/simple/price"
+        coin_ids = [
+            COINGECKO_IDS[network]
+            for network in networks
+            if network in COINGECKO_IDS
+        ]
 
-    params = {
-        "ids": ",".join(coin_ids),
-        "vs_currencies": "usd",
-    }
+        if not coin_ids:
+            return {}
 
-    response = requests.get(url, params=params, timeout=10)
-    response.raise_for_status()
+        data = self.client.get(
+            "/simple/price",
+            {
+                "ids": ",".join(coin_ids),
+                "vs_currencies": "usd",
+            },
+        )
 
-    data = response.json()
+        prices = {}
 
-    prices = {}
+        for network in networks:
+            coin_id = COINGECKO_IDS.get(network)
 
-    for network in networks:
-        coin_id = COINGECKO_IDS.get(network)
+            if coin_id in data:
+                prices[network] = data[coin_id]["usd"]
 
-        if coin_id in data:
-            prices[network] = data[coin_id]["usd"]
-
-    return prices
+        return prices
 
 
 if __name__ == "__main__":
-    prices = get_prices()
+    service = PriceService()
+
+    prices = service.get_prices()
+
+    print("GNOMEfinance Prices")
+    print("-------------------")
 
     for network, price in prices.items():
         print(f"{network}: ${price:,.2f}")
