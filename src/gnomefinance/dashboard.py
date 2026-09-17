@@ -78,7 +78,7 @@ class Dashboard:
         self.refresh_button = ttk.Button(
             self.root,
             text="Refresh Market Data",
-            command=self.refresh,
+            command=self.force_refresh,
         )
 
         self.refresh_button.pack(
@@ -148,12 +148,9 @@ class Dashboard:
             )
 
             if info is None:
-
                 price = 0
                 change = 0
-
             else:
-
                 price = info.get(
                     "price",
                     0,
@@ -237,7 +234,19 @@ class Dashboard:
         )
 
     def refresh(self):
-        """Refresh the dashboard safely."""
+        """Refresh using cached market data."""
+
+        self.update_dashboard()
+
+    def force_refresh(self):
+        """Clear the cache and fetch fresh market data."""
+
+        self.market.clear_cache()
+
+        self.update_dashboard()
+
+    def update_dashboard(self):
+        """Update the dashboard display."""
 
         self.status_label.config(
             text="Refreshing market data..."
@@ -305,17 +314,13 @@ class Dashboard:
                 )
             else:
                 self.status_label.config(
-                    text=(
-                        "Market data unavailable"
-                    )
+                    text="Market data unavailable"
                 )
 
         except Exception as error:
 
             self.status_label.config(
-                text=(
-                    "Dashboard refresh failed"
-                )
+                text="Dashboard refresh failed"
             )
 
             print(
