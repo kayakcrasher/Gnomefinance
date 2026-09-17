@@ -2,6 +2,7 @@
 
 from api_client import APIClient
 from network_config import NETWORKS
+from error_handler import APIError, NetworkError
 
 
 class MarketData:
@@ -37,14 +38,25 @@ class MarketData:
         if not coin_ids:
             return {}
 
-        data = self.client.get(
-            "/coins/markets",
-            {
-                "vs_currency": "usd",
-                "ids": ",".join(coin_ids),
-                "price_change_percentage": "24h",
-            },
-        )
+        try:
+
+            data = self.client.get(
+                "/coins/markets",
+                {
+                    "vs_currency": "usd",
+                    "ids": ",".join(coin_ids),
+                    "price_change_percentage": "24h",
+                },
+            )
+
+        except (
+            APIError,
+            NetworkError,
+        ):
+
+            # Let the dashboard decide how
+            # to present the failure.
+            return {}
 
         market_data = {}
 
@@ -52,7 +64,9 @@ class MarketData:
 
             network = None
 
-            for network_id, info in NETWORKS.items():
+            for network_id, info in (
+                NETWORKS.items()
+            ):
 
                 if info.get(
                     "coingecko_id"
@@ -65,18 +79,21 @@ class MarketData:
                 continue
 
             market_data[network] = {
-                "price": coin[
-                    "current_price"
-                ],
+                "price": coin.get(
+                    "current_price",
+                    0,
+                ),
                 "change_24h": coin.get(
                     "price_change_percentage_24h"
                 ) or 0,
-                "market_cap": coin[
-                    "market_cap"
-                ],
-                "volume_24h": coin[
-                    "total_volume"
-                ],
+                "market_cap": coin.get(
+                    "market_cap",
+                    0,
+                ),
+                "volume_24h": coin.get(
+                    "total_volume",
+                    0,
+                ),
             }
 
         return market_data
@@ -88,12 +105,19 @@ if __name__ == "__main__":
 
     data = market.get_market_data()
 
-    print("GNOMEfinance Market Data")
-    print("------------------------")
+    print(
+        "GNOMEfinance Market Data"
+    )
+
+    print(
+        "------------------------"
+    )
 
     for network, info in data.items():
 
-        symbol = NETWORKS[network]["symbol"]
+        symbol = NETWORKS[
+            network
+        ]["symbol"]
 
         print(
             f"{symbol}: "
