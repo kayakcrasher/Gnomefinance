@@ -2,6 +2,7 @@
 
 from api_client import APIClient
 from network_config import NETWORKS
+from error_handler import APIError, NetworkError
 
 
 class PriceService:
@@ -21,12 +22,15 @@ class PriceService:
         coin_ids = []
 
         for network in networks:
+
             info = NETWORKS.get(network)
 
             if info is None:
                 continue
 
-            coin_id = info.get("coingecko_id")
+            coin_id = info.get(
+                "coingecko_id"
+            )
 
             if coin_id:
                 coin_ids.append(coin_id)
@@ -34,13 +38,22 @@ class PriceService:
         if not coin_ids:
             return {}
 
-        data = self.client.get(
-            "/simple/price",
-            {
-                "ids": ",".join(coin_ids),
-                "vs_currencies": "usd",
-            },
-        )
+        try:
+
+            data = self.client.get(
+                "/simple/price",
+                {
+                    "ids": ",".join(coin_ids),
+                    "vs_currencies": "usd",
+                },
+            )
+
+        except (
+            APIError,
+            NetworkError,
+        ):
+
+            return {}
 
         prices = {}
 
@@ -51,12 +64,18 @@ class PriceService:
             if info is None:
                 continue
 
-            coin_id = info.get("coingecko_id")
+            coin_id = info.get(
+                "coingecko_id"
+            )
 
             if coin_id in data:
+
                 prices[network] = data[
                     coin_id
-                ]["usd"]
+                ].get(
+                    "usd",
+                    0,
+                )
 
         return prices
 
@@ -67,12 +86,19 @@ if __name__ == "__main__":
 
     prices = service.get_prices()
 
-    print("GNOMEfinance Prices")
-    print("-------------------")
+    print(
+        "GNOMEfinance Prices"
+    )
+
+    print(
+        "-------------------"
+    )
 
     for network, price in prices.items():
 
-        symbol = NETWORKS[network]["symbol"]
+        symbol = NETWORKS[
+            network
+        ]["symbol"]
 
         print(
             f"{symbol}: "
