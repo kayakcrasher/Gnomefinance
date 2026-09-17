@@ -854,7 +854,6 @@ def prices():
         "bitcoin",
         "ethereum",
         "solana",
-        "cardano",
     ]
 
     result = {}
