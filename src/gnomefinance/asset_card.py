@@ -15,6 +15,7 @@ class AssetCard(ttk.Frame):
         value,
         price,
         change_24h,
+        percentage=0,
     ):
         super().__init__(
             parent,
@@ -28,6 +29,7 @@ class AssetCard(ttk.Frame):
         self.value = value
         self.price = price
         self.change_24h = change_24h
+        self.percentage = percentage
 
         self.build()
 
@@ -83,13 +85,25 @@ class AssetCard(ttk.Frame):
             pady=3,
         )
 
+        allocation_label = ttk.Label(
+            self,
+            text=f"Portfolio: {self.percentage:.2f}%",
+        )
+
+        allocation_label.grid(
+            row=4,
+            column=0,
+            sticky="w",
+            pady=3,
+        )
+
         change_label = ttk.Label(
             self,
             text=f"24h: {self.change_24h:.2f}%",
         )
 
         change_label.grid(
-            row=4,
+            row=5,
             column=0,
             sticky="w",
             pady=3,
@@ -107,6 +121,7 @@ if __name__ == "__main__":
         value=7000,
         price=100000,
         change_24h=2.5,
+        percentage=65.5,
     )
 
     card.pack(
