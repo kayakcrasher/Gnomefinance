@@ -1,12 +1,10 @@
-# solana_rpc.py
-
 import requests
 
 from error_handler import APIError, NetworkError
 
 
 class SolanaRPC:
-    """Basic read-only Solana JSON-RPC client."""
+    """Low-level JSON-RPC client for the Solana blockchain."""
 
     def __init__(
         self,
@@ -16,11 +14,7 @@ class SolanaRPC:
         self.rpc_url = rpc_url
         self.timeout = timeout
 
-    def call(
-        self,
-        method,
-        params=None,
-    ):
+    def call(self, method, params=None):
         """Send a JSON-RPC request to Solana."""
 
         payload = {
@@ -31,7 +25,6 @@ class SolanaRPC:
         }
 
         try:
-
             response = requests.post(
                 self.rpc_url,
                 json=payload,
@@ -39,52 +32,40 @@ class SolanaRPC:
             )
 
             response.raise_for_status()
-
             data = response.json()
 
         except requests.exceptions.Timeout as error:
-
             raise NetworkError(
                 "Solana RPC request timed out."
             ) from error
 
         except requests.exceptions.ConnectionError as error:
-
             raise NetworkError(
                 "Could not connect to Solana RPC."
             ) from error
 
         except requests.exceptions.HTTPError as error:
-
             raise APIError(
                 f"Solana RPC HTTP error: {error}"
             ) from error
 
         except requests.exceptions.JSONDecodeError as error:
-
             raise APIError(
                 "Solana RPC returned invalid JSON."
             ) from error
 
         except requests.exceptions.RequestException as error:
-
             raise APIError(
                 f"Solana RPC request failed: {error}"
             ) from error
 
         if "error" in data:
-
-            raise APIError(
-                str(data["error"])
-            )
+            raise APIError(str(data["error"]))
 
         return data.get("result")
 
-    def get_balance(
-        self,
-        address,
-    ):
-        """Return a Solana account balance in lamports."""
+    def get_balance(self, address):
+        """Return an account balance in lamports."""
 
         result = self.call(
             "getBalance",
@@ -94,28 +75,17 @@ class SolanaRPC:
         if not result:
             return 0
 
-        return result.get(
-            "value",
-            0,
-        )
+        return result.get("value", 0)
 
-    def get_balance_sol(
-        self,
-        address,
-    ):
-        """Return a Solana account balance in SOL."""
+    def get_balance_sol(self, address):
+        """Return an account balance in SOL."""
 
-        lamports = self.get_balance(
-            address
-        )
+        lamports = self.get_balance(address)
 
         return lamports / 1_000_000_000
 
-    def get_account_info(
-        self,
-        address,
-    ):
-        """Return raw Solana account information."""
+    def get_account_info(self, address):
+        """Return account information."""
 
         return self.call(
             "getAccountInfo",
@@ -127,77 +97,50 @@ class SolanaRPC:
             ],
         )
 
+    def get_transaction(self, transaction_id):
+        """Return transaction information."""
+
+        return self.call(
+            "getTransaction",
+            [
+                transaction_id,
+                {
+                    "encoding": "jsonParsed",
+                    "maxSupportedTransactionVersion": 0,
+                },
+            ],
+        )
+
     def get_latest_blockhash(self):
         """Return the latest Solana blockhash."""
 
-        result = self.call(
-            "getLatestBlockhash"
-        )
+        result = self.call("getLatestBlockhash")
 
         if not result:
             return None
 
-        return result.get(
-            "value",
-            {},
-        )
+        return result.get("value", {})
 
     def get_slot(self):
         """Return the current Solana slot."""
 
-        return self.call(
-            "getSlot"
-        )
+        return self.call("getSlot")
 
     def is_connected(self):
-        """Test the Solana RPC connection."""
+        """Check whether the Solana RPC is reachable."""
 
         try:
-
             self.get_slot()
-
             return True
 
-        except (
-            APIError,
-            NetworkError,
-        ):
-
+        except (APIError, NetworkError):
             return False
 
 
 if __name__ == "__main__":
-
     rpc = SolanaRPC()
 
-    print(
-        "GNOMEfinance Solana RPC"
-    )
-
-    print(
-        "-----------------------"
-    )
-
-    try:
-
-        slot = rpc.get_slot()
-
-        print(
-            "Current slot:",
-            slot,
-        )
-
-        print(
-            "RPC connected:",
-            rpc.is_connected(),
-        )
-
-    except (
-        APIError,
-        NetworkError,
-    ) as error:
-
-        print(
-            "Solana RPC error:",
-            error,
-        )
+    print("GNOMEfinance Solana RPC")
+    print("-----------------------")
+    print("RPC URL:", rpc.rpc_url)
+    print("Connected:", rpc.is_connected())
