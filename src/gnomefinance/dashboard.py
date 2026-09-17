@@ -39,6 +39,13 @@ class Dashboard:
 
         title.pack(pady=15)
 
+        self.status_label = ttk.Label(
+            self.root,
+            text="Ready",
+        )
+
+        self.status_label.pack()
+
         self.total_label = ttk.Label(
             self.root,
             text="Total Portfolio: $0.00",
@@ -47,7 +54,9 @@ class Dashboard:
 
         self.total_label.pack(pady=5)
 
-        self.asset_frame = ttk.Frame(self.root)
+        self.asset_frame = ttk.Frame(
+            self.root
+        )
 
         self.asset_frame.pack(
             fill="x",
@@ -55,7 +64,9 @@ class Dashboard:
             pady=15,
         )
 
-        self.chart_frame = ttk.Frame(self.root)
+        self.chart_frame = ttk.Frame(
+            self.root
+        )
 
         self.chart_frame.pack(
             fill="both",
@@ -70,26 +81,47 @@ class Dashboard:
             command=self.refresh,
         )
 
-        self.refresh_button.pack(pady=15)
+        self.refresh_button.pack(
+            pady=15
+        )
 
     def load_demo_data(self):
         """Load temporary portfolio data."""
 
-        self.data.add_asset("bitcoin", 0.065)
-        self.data.add_asset("solana", 5.4)
-        self.data.add_asset("cardano", 1500)
-        self.data.add_asset("avalanche", 25)
+        self.data.add_asset(
+            "bitcoin",
+            0.065,
+        )
+
+        self.data.add_asset(
+            "solana",
+            5.4,
+        )
+
+        self.data.add_asset(
+            "cardano",
+            1500,
+        )
+
+        self.data.add_asset(
+            "avalanche",
+            25,
+        )
 
     def clear_assets(self):
         """Remove existing asset cards."""
 
-        for widget in self.asset_frame.winfo_children():
+        for widget in (
+            self.asset_frame.winfo_children()
+        ):
             widget.destroy()
 
     def clear_chart(self):
         """Remove the existing chart."""
 
-        for widget in self.chart_frame.winfo_children():
+        for widget in (
+            self.chart_frame.winfo_children()
+        ):
             widget.destroy()
 
     def create_asset_cards(
@@ -98,15 +130,16 @@ class Dashboard:
         market_data,
         allocation_data,
     ):
-        """Create a card for each portfolio asset."""
+        """Create cards for portfolio assets."""
 
         self.clear_assets()
 
-        for network, asset in dashboard["assets"].items():
+        for network, asset in (
+            dashboard["assets"].items()
+        ):
 
             info = market_data.get(
-                network,
-                {},
+                network
             )
 
             allocation = allocation_data.get(
@@ -114,15 +147,22 @@ class Dashboard:
                 {},
             )
 
-            price = info.get(
-                "price",
-                0,
-            )
+            if info is None:
 
-            change = info.get(
-                "change_24h",
-                0,
-            )
+                price = 0
+                change = 0
+
+            else:
+
+                price = info.get(
+                    "price",
+                    0,
+                )
+
+                change = info.get(
+                    "change_24h",
+                    0,
+                )
 
             percentage = allocation.get(
                 "percentage",
@@ -150,12 +190,19 @@ class Dashboard:
         self.clear_chart()
 
         portfolio = (
-            self.data.portfolio_service.portfolio
+            self.data
+            .portfolio_service
+            .portfolio
         )
 
-        chart_data = ChartData(portfolio)
+        chart_data = ChartData(
+            portfolio
+        )
 
         data = chart_data.get_chart_data()
+
+        if not data["values"]:
+            return
 
         figure = Figure(
             figsize=(8, 4),
@@ -190,48 +237,97 @@ class Dashboard:
         )
 
     def refresh(self):
-        """Refresh the entire dashboard."""
+        """Refresh the dashboard safely."""
 
-        dashboard = (
-            self.data.get_dashboard_data()
+        self.status_label.config(
+            text="Refreshing market data..."
         )
 
-        networks = list(
-            dashboard["assets"].keys()
+        self.refresh_button.config(
+            state="disabled"
         )
 
-        market_data = (
-            self.market.get_market_data(
-                networks
+        self.root.update_idletasks()
+
+        try:
+
+            dashboard = (
+                self.data
+                .get_dashboard_data()
             )
-        )
 
-        portfolio = (
-            self.data.portfolio_service.portfolio
-        )
-
-        allocation_service = (
-            PortfolioAllocation(portfolio)
-        )
-
-        allocation_data = (
-            allocation_service.get_summary()
-        )
-
-        self.total_label.config(
-            text=(
-                f"Total Portfolio: "
-                f"${dashboard['total_value']:,.2f}"
+            networks = list(
+                dashboard["assets"].keys()
             )
-        )
 
-        self.create_asset_cards(
-            dashboard,
-            market_data,
-            allocation_data,
-        )
+            market_data = (
+                self.market
+                .get_market_data(
+                    networks
+                )
+            )
 
-        self.create_chart()
+            portfolio = (
+                self.data
+                .portfolio_service
+                .portfolio
+            )
+
+            allocation_service = (
+                PortfolioAllocation(
+                    portfolio
+                )
+            )
+
+            allocation_data = (
+                allocation_service
+                .get_summary()
+            )
+
+            self.total_label.config(
+                text=(
+                    "Total Portfolio: "
+                    f"${dashboard['total_value']:,.2f}"
+                )
+            )
+
+            self.create_asset_cards(
+                dashboard,
+                market_data,
+                allocation_data,
+            )
+
+            self.create_chart()
+
+            if market_data:
+                self.status_label.config(
+                    text="Market data updated"
+                )
+            else:
+                self.status_label.config(
+                    text=(
+                        "Market data unavailable"
+                    )
+                )
+
+        except Exception as error:
+
+            self.status_label.config(
+                text=(
+                    "Dashboard refresh failed"
+                )
+            )
+
+            print(
+                "GNOMEfinance dashboard error:",
+                error,
+            )
+
+        finally:
+
+            self.refresh_button.config(
+                state="normal"
+            )
 
 
 def main():
