@@ -187,6 +187,72 @@ td small { display: block; color: var(--muted); font-size: 0.75rem; margin-top: 
 .wallet-bal small { display: block; color: var(--muted); font-size: 0.75rem; }
 .wallet-err { color: var(--red); font-size: 0.75rem; }
 
+/* ---------- SOLANA DAPP ---------- */
+
+.dapp-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.dapp-who { display: flex; align-items: center; gap: 10px; font-weight: 650; }
+.dapp-who .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+.dapp-who.on .dot { background: var(--green); box-shadow: 0 0 10px var(--green); }
+.dapp-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.dapp-devnet {
+    margin-top: 14px; padding: 12px 14px; border: 1px dashed #5b4a2a; border-radius: 12px;
+    color: var(--gold-soft); font-size: 0.85rem; line-height: 1.5;
+}
+.dapp-devnet button { margin-left: 6px; padding: 5px 10px; font-size: 0.8rem; }
+
+.tabs { display: flex; gap: 6px; margin: 18px 0 14px; border-bottom: 1px solid var(--border); }
+.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 8px 14px; color: var(--muted); }
+.tabs button.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tabs button:hover { background: none; color: var(--text); }
+
+.dapp-total { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+#dapp-total { font-family: var(--serif); font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.dapp-actions { display: flex; gap: 6px; }
+.dapp-actions button { padding: 6px 11px; font-size: 0.8rem; }
+
+.token-list { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow-y: auto; }
+.token-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgba(41, 54, 44, 0.6); }
+.token-list img, .token-icon {
+    width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 700;
+}
+.token-name { flex: 1; min-width: 0; }
+.token-name small { display: block; color: var(--muted); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.token-amt { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.token-amt small { display: block; color: var(--muted); font-size: 0.75rem; }
+.unverified { color: var(--gold); font-weight: 400; }
+
+.dapp .stack-form { display: grid; gap: 12px; max-width: 560px; }
+.dapp label { display: grid; gap: 6px; color: var(--muted); font-size: 0.8rem; }
+.dapp label .row-form { margin: 0; }
+.dapp label select, .dapp label input { color: var(--text); font-size: 0.95rem; }
+.dapp .hint { margin: 0; }
+.wide { width: 100%; padding: 12px; }
+.swap-flip { display: flex; justify-content: center; margin: -4px 0; }
+.swap-flip button { padding: 4px 12px; border-radius: 50%; }
+.quote {
+    display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--surface-2); font-size: 0.88rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
+.warn-text { color: var(--gold); }
+
+.modal {
+    width: min(460px, 100% - 32px); padding: 22px; color: var(--text);
+    border: 1px solid var(--border); border-radius: 18px; background: var(--surface);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.modal::backdrop { background: rgba(0, 0, 0, 0.6); }
+.modal h3 { margin: 0 0 14px; font-family: var(--serif); font-size: 1.35rem; }
+.modal dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin: 0 0 14px; font-size: 0.9rem; }
+.modal dt { color: var(--muted); }
+.modal dd { margin: 0; text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.modal .warn { padding: 10px 12px; border-radius: 10px; background: rgba(213, 181, 106, 0.1); color: var(--gold-soft); font-size: 0.85rem; }
+.confirm-status { padding: 10px 12px; margin-bottom: 12px; border-radius: 10px; background: var(--surface-2); font-size: 0.88rem; overflow-wrap: anywhere; }
+.confirm-status.ok { color: var(--green); }
+.confirm-status.bad { color: var(--red); }
+.confirm-status a { color: var(--gold); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
 footer { margin-top: 35px; color: var(--muted); text-align: center; font-size: 0.78rem; }
 
 .toast {

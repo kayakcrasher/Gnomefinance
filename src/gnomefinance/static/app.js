@@ -428,4 +428,8 @@ $("refresh").addEventListener("click", () => refresh(true));
 setInterval(() => { if (!document.hidden) refresh(); }, 120000);
 
 selectChartAsset(state.chartAsset);
+// Let dapp.js reuse these.
+window.gnomeApi = api;
+window.gnomeRefresh = () => refresh(true);
+
 refresh();

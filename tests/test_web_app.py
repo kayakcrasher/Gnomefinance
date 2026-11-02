@@ -20,8 +20,15 @@ def test_home_page(client):
 
 
 def test_static_files(client):
-    assert client.get("/static/app.js").status_code == 200
-    assert client.get("/static/style.css").status_code == 200
+    for path in ("app.js", "style.css", "dapp.js", "vendor/solana-web3-1.98.0.min.js"):
+        assert client.get(f"/static/{path}").status_code == 200, path
+
+
+def test_dapp_section_is_on_the_page(client):
+    html = client.get("/").get_data(as_text=True)
+    assert 'id="dapp-connect"' in html
+    assert "static/dapp.js" in html
+    assert "browser_backend.js" not in html  # only the Pages build uses it
 
 
 def test_market(client):

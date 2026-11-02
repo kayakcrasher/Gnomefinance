@@ -138,14 +138,123 @@
 
     </section>
 
+    <!-- SOLANA DAPP -->
+    <div class="section-heading" id="dapp">
+        <h2>Gnome's Solana Hollow</h2>
+        <span>Connect a wallet to send and swap. You approve every transaction in your wallet.</span>
+    </div>
+
+    <section class="panel dapp">
+        <div class="dapp-bar">
+            <div class="dapp-who" id="dapp-who">
+                <span class="dot"></span>
+                <span id="dapp-status">Not connected</span>
+            </div>
+            <div class="dapp-controls">
+                <select id="dapp-network" aria-label="Solana network">
+                    <option value="mainnet">Mainnet</option>
+                    <option value="devnet">Devnet (test SOL)</option>
+                </select>
+                <button class="primary" id="dapp-connect">Connect wallet</button>
+            </div>
+        </div>
+
+        <div class="dapp-devnet" id="dapp-devnet-note" hidden>
+            You're on <b>devnet</b>, Solana's free test network. Tokens here have no value.
+            Switch your wallet to devnet too (Phantom: Settings → Developer Settings → Testnet Mode).
+            <button id="dapp-airdrop">Get free test SOL</button>
+        </div>
+
+        <div id="dapp-body" hidden>
+            <div class="tabs" role="tablist">
+                <button role="tab" data-tab="tokens" class="active">Tokens</button>
+                <button role="tab" data-tab="send">Send</button>
+                <button role="tab" data-tab="swap">Swap</button>
+            </div>
+
+            <div class="tab" data-pane="tokens">
+                <div class="dapp-total">
+                    <span id="dapp-total">—</span>
+                    <span class="dapp-actions">
+                        <button id="dapp-track">Track in portfolio</button>
+                        <button id="dapp-reload">Reload</button>
+                    </span>
+                </div>
+                <ul class="token-list" id="dapp-tokens"></ul>
+            </div>
+
+            <div class="tab" data-pane="send" hidden>
+                <form class="stack-form" id="send-form" autocomplete="off">
+                    <label>Token
+                        <select name="token" id="send-token"></select>
+                    </label>
+                    <label>Recipient address
+                        <input name="to" placeholder="Solana address" spellcheck="false" required>
+                    </label>
+                    <label>Amount
+                        <span class="row-form">
+                            <input name="amount" inputmode="decimal" placeholder="0.0" required>
+                            <button type="button" id="send-max">Max</button>
+                        </span>
+                    </label>
+                    <div class="hint" id="send-hint"></div>
+                    <button type="submit" class="primary wide">Review send</button>
+                </form>
+            </div>
+
+            <div class="tab" data-pane="swap" hidden>
+                <div class="hint" id="swap-devnet" hidden>Swaps run through Jupiter, which only exists on mainnet.</div>
+                <form class="stack-form" id="swap-form" autocomplete="off">
+                    <label>You pay
+                        <span class="row-form">
+                            <select name="from" id="swap-from"></select>
+                            <input name="amount" inputmode="decimal" placeholder="0.0" required>
+                            <button type="button" id="swap-max">Max</button>
+                        </span>
+                    </label>
+                    <div class="swap-flip"><button type="button" id="swap-flip" aria-label="Swap direction">⇅</button></div>
+                    <label>You receive
+                        <span class="row-form">
+                            <select name="to" id="swap-to"></select>
+                            <input id="swap-mint" placeholder="…or paste a token mint" spellcheck="false">
+                        </span>
+                    </label>
+                    <label>Slippage
+                        <select name="slippage" id="swap-slippage">
+                            <option value="10">0.1%</option>
+                            <option value="50" selected>0.5%</option>
+                            <option value="100">1%</option>
+                            <option value="300">3%</option>
+                        </select>
+                    </label>
+                    <div class="quote" id="swap-quote">Enter an amount to get a quote.</div>
+                    <button type="submit" class="primary wide" id="swap-submit" disabled>Review swap</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
     <footer>🍄 GNOMEfinance v{{ version }} — built one block at a time.</footer>
 </div>
 
 <div class="toast" id="toast" role="status" hidden></div>
+
+<dialog class="modal" id="confirm">
+    <h3 id="confirm-title">Confirm</h3>
+    <dl id="confirm-details"></dl>
+    <p class="warn" id="confirm-warning" hidden></p>
+    <div class="confirm-status" id="confirm-status" hidden></div>
+    <div class="modal-actions">
+        <button id="confirm-cancel">Cancel</button>
+        <button class="primary" id="confirm-ok">Approve in wallet</button>
+    </div>
+</dialog>
 {% if static_site %}
 <script>window.GNOME_ASSETS = {{ assets|tojson }};</script>
 <script src="{{ url_for('static', filename='browser_backend.js') }}"></script>
 {% endif %}
 <script src="{{ url_for('static', filename='app.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/solana-web3-1.98.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='dapp.js') }}"></script>
 </body>
 </html>

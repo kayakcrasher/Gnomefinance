@@ -21,7 +21,7 @@ gnomefinance = "gnomefinance.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-gnomefinance = ["templates/*.html", "static/*"]
+gnomefinance = ["templates/*.html", "static/*", "static/vendor/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
