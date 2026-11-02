@@ -1,10 +1,36 @@
-from gnomefinance.cache import PriceCache
+from gnomefinance.cache import TTLCache
 
 
-def test_cache_save_and_get():
-    cache = PriceCache(duration=30)
+class Clock:
+    def __init__(self):
+        self.now = 0.0
 
-    cache.save("bitcoin", 65000)
+    def __call__(self):
+        return self.now
 
-    assert cache.has("bitcoin")
+
+def test_get_returns_fresh_value():
+    cache = TTLCache(ttl=30, clock=Clock())
+    cache.set("bitcoin", 65000)
     assert cache.get("bitcoin") == 65000
+    assert cache.has("bitcoin")
+
+
+def test_value_expires_but_stale_copy_is_kept():
+    clock = Clock()
+    cache = TTLCache(ttl=30, clock=clock)
+    cache.set("bitcoin", 65000)
+    clock.now = 31
+    assert cache.get("bitcoin") is None
+    assert cache.get_stale("bitcoin") == 65000
+    assert cache.age("bitcoin") == 31
+
+
+def test_max_age_override_and_clear():
+    clock = Clock()
+    cache = TTLCache(ttl=30, clock=clock)
+    cache.set("a", 1)
+    clock.now = 50
+    assert cache.get("a", max_age=60) == 1
+    cache.clear()
+    assert cache.get_stale("a") is None

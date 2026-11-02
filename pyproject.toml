@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnomefinance"
+version = "0.2.0"
+description = "A small personal crypto portfolio tracker."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["requests>=2.31", "Flask>=3.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+server = ["gunicorn>=22"]
+
+[project.scripts]
+gnomefinance = "gnomefinance.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+gnomefinance = ["templates/*.html", "static/*", "static/vendor/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

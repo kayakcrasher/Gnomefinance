@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Your personal portfolio data stays on your machine.
+data/
+portfolio.json
+
+server.log
+tunnel.log
+site/

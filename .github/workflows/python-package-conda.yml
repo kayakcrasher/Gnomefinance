@@ -28,10 +28,8 @@ jobs:
 
       - name: Check Python syntax
         run: |
-          python -m compileall src/gnomefinance
+          python -m compileall -q src/gnomefinance tests
 
       - name: Run tests
-        env:
-          PYTHONPATH: src/gnomefinance
         run: |
-          pytest -v 
+          pytest -v

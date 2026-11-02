@@ -1,5 +1,4 @@
-requests
-matplotlib
-pytest
-Flask
-gunicorn
+requests>=2.31
+Flask>=3.0
+gunicorn>=22
+pytest>=8

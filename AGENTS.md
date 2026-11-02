@@ -17,6 +17,13 @@ GNOMEfinance is being built one piece at a time.
 
 Learn Python by building GNOMEfinance.
 
+## Structure
+
+- All app logic goes through `service.py` (`GnomeFinance`); the web app, GUI and CLI only display it.
+- Use package-relative imports (`from .market import MarketData`).
+- Tests live in `tests/` and must never call the real internet; use the fakes in `tests/conftest.py`.
+- Run `pytest` before committing.
+
 ## Important
 
 When adding a new feature, make the smallest useful version first.

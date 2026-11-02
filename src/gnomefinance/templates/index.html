@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GNOMEfinance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page">
+
+    <header>
+        <div class="brand">
+            <div class="gnome" aria-hidden="true">🧙‍♂️</div>
+            <div>
+                <h1>GNOMEfinance</h1>
+                <div class="tagline">Crypto tools from a little corner of the forest.</div>
+            </div>
+        </div>
+        <div class="actions">
+            <span class="updated" id="updated"></span>
+            <button class="refresh" id="refresh">🍄 Refresh</button>
+        </div>
+    </header>
+
+    <!-- NET WORTH -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="eyebrow">Your treasure</div>
+            <h2 id="total-value">—</h2>
+            <div class="hero-change" id="total-change">Loading portfolio…</div>
+            <div class="alloc-bar" id="alloc-bar" aria-label="Portfolio allocation"></div>
+            <div class="alloc-legend" id="alloc-legend"></div>
+        </div>
+        <div class="hero-mushrooms" aria-hidden="true">🍄 🍄</div>
+    </section>
+
+    <div class="notice" id="notice" hidden></div>
+
+    <!-- MARKETS -->
+    <div class="section-heading">
+        <h2>Market Watch</h2>
+        <span>Live from CoinGecko · click a coin to chart it</span>
+    </div>
+
+    <section class="cards" id="markets">
+        {% for asset_id, info in assets.items() %}
+        <button class="card" data-asset="{{ asset_id }}">
+            <div class="card-top">
+                <div>
+                    <div class="coin">{{ info.name }}</div>
+                    <div class="symbol">{{ info.symbol }}</div>
+                </div>
+                <div class="coin-icon">{{ info.icon }}</div>
+            </div>
+            <div class="price" data-field="price">…</div>
+            <div class="change" data-field="change">&nbsp;</div>
+        </button>
+        {% endfor %}
+    </section>
+
+    <!-- CHART -->
+    <section class="panel chart-panel">
+        <div class="chart-head">
+            <h3 id="chart-title">Bitcoin</h3>
+            <div class="ranges" id="ranges">
+                {% for days in ranges %}
+                <button data-days="{{ days }}" {% if days == 7 %}class="active"{% endif %}>
+                    {{ {1: "1D", 7: "7D", 30: "1M", 90: "3M", 365: "1Y"}[days] }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="chart-stats" id="chart-stats">&nbsp;</div>
+        <div class="chart" id="chart"><div class="chart-empty">Loading chart…</div></div>
+    </section>
+
+    <!-- WORKBENCH -->
+    <div class="section-heading">
+        <h2>GNOME's Workbench</h2>
+        <span>{% if static_site %}Saved only in this browser{% else %}Saved locally on this machine{% endif %}</span>
+    </div>
+
+    <section class="lower">
+
+        <div class="panel">
+            <h3>🍄 Holdings</h3>
+            <p class="hint">Coins on exchanges or anywhere you can't look up by address.</p>
+
+            <form class="row-form" id="holding-form">
+                <select name="asset" aria-label="Asset">
+                    {% for asset_id, info in assets.items() %}
+                    <option value="{{ asset_id }}">{{ info.symbol }} · {{ info.name }}</option>
+                    {% endfor %}
+                </select>
+                <input name="amount" type="number" step="any" min="0" placeholder="Amount" required aria-label="Amount">
+                <button type="submit" class="primary">Set</button>
+            </form>
+
+            <div class="table-wrap">
+                <table id="holdings-table">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th class="num">Amount</th>
+                            <th class="num">Value</th>
+                            <th class="num">24h</th>
+                            <th class="num">Share</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="holdings"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>🌲 Wallets</h3>
+            <p class="hint">Track a public address — balances are read live from the chain. No keys, ever.</p>
+
+            <form class="stack-form" id="wallet-form">
+                <div class="row-form">
+                    <select name="chain" aria-label="Chain">
+                        {% for chain_id, chain in chains.items() %}
+                        <option value="{{ chain_id }}">{{ chain.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input name="label" placeholder="Label (optional)" maxlength="40" aria-label="Label">
+                </div>
+                <div class="row-form">
+                    <input name="address" placeholder="Public address" required autocomplete="off" spellcheck="false" aria-label="Address">
+                    <button type="submit" class="primary">Track</button>
+                </div>
+            </form>
+
+            <ul class="wallets" id="wallets"></ul>
+        </div>
+
+    </section>
+
+    <!-- SOLANA DAPP -->
+    <div class="section-heading" id="dapp">
+        <h2>Gnome's Solana Hollow</h2>
+        <span>Connect a wallet to send and swap. You approve every transaction in your wallet.</span>
+    </div>
+
+    <section class="panel dapp">
+        <div class="dapp-bar">
+            <div class="dapp-who" id="dapp-who">
+                <span class="dot"></span>
+                <span id="dapp-status">Not connected</span>
+            </div>
+            <div class="dapp-controls">
+                <select id="dapp-network" aria-label="Solana network">
+                    <option value="mainnet">Mainnet</option>
+                    <option value="devnet">Devnet (test SOL)</option>
+                </select>
+                <button class="primary" id="dapp-connect">Connect wallet</button>
+            </div>
+        </div>
+
+        <div class="dapp-devnet" id="dapp-devnet-note" hidden>
+            You're on <b>devnet</b>, Solana's free test network. Tokens here have no value.
+            Switch your wallet to devnet too (Phantom: Settings → Developer Settings → Testnet Mode).
+            <button id="dapp-airdrop">Get free test SOL</button>
+        </div>
+
+        <div id="dapp-body" hidden>
+            <div class="tabs" role="tablist">
+                <button role="tab" data-tab="tokens" class="active">Tokens</button>
+                <button role="tab" data-tab="send">Send</button>
+                <button role="tab" data-tab="swap">Swap</button>
+            </div>
+
+            <div class="tab" data-pane="tokens">
+                <div class="dapp-total">
+                    <span id="dapp-total">—</span>
+                    <span class="dapp-actions">
+                        <button id="dapp-track">Track in portfolio</button>
+                        <button id="dapp-reload">Reload</button>
+                    </span>
+                </div>
+                <ul class="token-list" id="dapp-tokens"></ul>
+            </div>
+
+            <div class="tab" data-pane="send" hidden>
+                <form class="stack-form" id="send-form" autocomplete="off">
+                    <label>Token
+                        <select name="token" id="send-token"></select>
+                    </label>
+                    <label>Recipient address
+                        <input name="to" placeholder="Solana address" spellcheck="false" required>
+                    </label>
+                    <label>Amount
+                        <span class="row-form">
+                            <input name="amount" inputmode="decimal" placeholder="0.0" required>
+                            <button type="button" id="send-max">Max</button>
+                        </span>
+                    </label>
+                    <div class="hint" id="send-hint"></div>
+                    <button type="submit" class="primary wide">Review send</button>
+                </form>
+            </div>
+
+            <div class="tab" data-pane="swap" hidden>
+                <div class="hint" id="swap-devnet" hidden>Swaps run through Jupiter, which only exists on mainnet.</div>
+                <form class="stack-form" id="swap-form" autocomplete="off">
+                    <label>You pay
+                        <span class="row-form">
+                            <select name="from" id="swap-from"></select>
+                            <input name="amount" inputmode="decimal" placeholder="0.0" required>
+                            <button type="button" id="swap-max">Max</button>
+                        </span>
+                    </label>
+                    <div class="swap-flip"><button type="button" id="swap-flip" aria-label="Swap direction">⇅</button></div>
+                    <label>You receive
+                        <span class="row-form">
+                            <select name="to" id="swap-to"></select>
+                            <input id="swap-mint" placeholder="…or paste a token mint" spellcheck="false">
+                        </span>
+                    </label>
+                    <label>Slippage
+                        <select name="slippage" id="swap-slippage">
+                            <option value="10">0.1%</option>
+                            <option value="50" selected>0.5%</option>
+                            <option value="100">1%</option>
+                            <option value="300">3%</option>
+                        </select>
+                    </label>
+                    <div class="quote" id="swap-quote">Enter an amount to get a quote.</div>
+                    <button type="submit" class="primary wide" id="swap-submit" disabled>Review swap</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>🍄 GNOMEfinance v{{ version }} — built one block at a time.</footer>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<dialog class="modal" id="confirm">
+    <h3 id="confirm-title">Confirm</h3>
+    <dl id="confirm-details"></dl>
+    <p class="warn" id="confirm-warning" hidden></p>
+    <div class="confirm-status" id="confirm-status" hidden></div>
+    <div class="modal-actions">
+        <button id="confirm-cancel">Cancel</button>
+        <button class="primary" id="confirm-ok">Approve in wallet</button>
+    </div>
+</dialog>
+{% if static_site %}
+<script>window.GNOME_ASSETS = {{ assets|tojson }};</script>
+<script src="{{ url_for('static', filename='browser_backend.js') }}"></script>
+{% endif %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/solana-web3-1.98.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='dapp.js') }}"></script>
+</body>
+</html>
