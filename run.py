@@ -1,4 +1,11 @@
-from src.gnomefinance.gui import start_gui
+"""Start the GNOMEfinance desktop app:  python run.py"""
 
+import sys
+from pathlib import Path
 
-start_gui()
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+
+from gnomefinance.gui import start_gui  # noqa: E402
+
+if __name__ == "__main__":
+    start_gui()

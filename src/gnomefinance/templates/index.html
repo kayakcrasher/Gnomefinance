@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GNOMEfinance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="page">
+
+    <header>
+        <div class="brand">
+            <div class="gnome" aria-hidden="true">🧙‍♂️</div>
+            <div>
+                <h1>GNOMEfinance</h1>
+                <div class="tagline">Crypto tools from a little corner of the forest.</div>
+            </div>
+        </div>
+        <div class="actions">
+            <span class="updated" id="updated"></span>
+            <button class="refresh" id="refresh">🍄 Refresh</button>
+        </div>
+    </header>
+
+    <!-- NET WORTH -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="eyebrow">Your treasure</div>
+            <h2 id="total-value">—</h2>
+            <div class="hero-change" id="total-change">Loading portfolio…</div>
+            <div class="alloc-bar" id="alloc-bar" aria-label="Portfolio allocation"></div>
+            <div class="alloc-legend" id="alloc-legend"></div>
+        </div>
+        <div class="hero-mushrooms" aria-hidden="true">🍄 🍄</div>
+    </section>
+
+    <div class="notice" id="notice" hidden></div>
+
+    <!-- MARKETS -->
+    <div class="section-heading">
+        <h2>Market Watch</h2>
+        <span>Live from CoinGecko · click a coin to chart it</span>
+    </div>
+
+    <section class="cards" id="markets">
+        {% for asset_id, info in assets.items() %}
+        <button class="card" data-asset="{{ asset_id }}">
+            <div class="card-top">
+                <div>
+                    <div class="coin">{{ info.name }}</div>
+                    <div class="symbol">{{ info.symbol }}</div>
+                </div>
+                <div class="coin-icon">{{ info.icon }}</div>
+            </div>
+            <div class="price" data-field="price">…</div>
+            <div class="change" data-field="change">&nbsp;</div>
+        </button>
+        {% endfor %}
+    </section>
+
+    <!-- CHART -->
+    <section class="panel chart-panel">
+        <div class="chart-head">
+            <h3 id="chart-title">Bitcoin</h3>
+            <div class="ranges" id="ranges">
+                {% for days in ranges %}
+                <button data-days="{{ days }}" {% if days == 7 %}class="active"{% endif %}>
+                    {{ {1: "1D", 7: "7D", 30: "1M", 90: "3M", 365: "1Y"}[days] }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="chart-stats" id="chart-stats">&nbsp;</div>
+        <div class="chart" id="chart"><div class="chart-empty">Loading chart…</div></div>
+    </section>
+
+    <!-- WORKBENCH -->
+    <div class="section-heading">
+        <h2>GNOME's Workbench</h2>
+        <span>Saved locally on this machine</span>
+    </div>
+
+    <section class="lower">
+
+        <div class="panel">
+            <h3>🍄 Holdings</h3>
+            <p class="hint">Coins on exchanges or anywhere you can't look up by address.</p>
+
+            <form class="row-form" id="holding-form">
+                <select name="asset" aria-label="Asset">
+                    {% for asset_id, info in assets.items() %}
+                    <option value="{{ asset_id }}">{{ info.symbol }} · {{ info.name }}</option>
+                    {% endfor %}
+                </select>
+                <input name="amount" type="number" step="any" min="0" placeholder="Amount" required aria-label="Amount">
+                <button type="submit" class="primary">Set</button>
+            </form>
+
+            <div class="table-wrap">
+                <table id="holdings-table">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th class="num">Amount</th>
+                            <th class="num">Value</th>
+                            <th class="num">24h</th>
+                            <th class="num">Share</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="holdings"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>🌲 Wallets</h3>
+            <p class="hint">Track a public address — balances are read live from the chain. No keys, ever.</p>
+
+            <form class="stack-form" id="wallet-form">
+                <div class="row-form">
+                    <select name="chain" aria-label="Chain">
+                        {% for chain_id, chain in chains.items() %}
+                        <option value="{{ chain_id }}">{{ chain.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input name="label" placeholder="Label (optional)" maxlength="40" aria-label="Label">
+                </div>
+                <div class="row-form">
+                    <input name="address" placeholder="Public address" required autocomplete="off" spellcheck="false" aria-label="Address">
+                    <button type="submit" class="primary">Track</button>
+                </div>
+            </form>
+
+            <ul class="wallets" id="wallets"></ul>
+        </div>
+
+    </section>
+
+    <footer>🍄 GNOMEfinance v{{ version }} — built one block at a time.</footer>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

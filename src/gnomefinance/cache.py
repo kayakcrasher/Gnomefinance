@@ -1,29 +1,50 @@
+"""A tiny time-limited (TTL) cache.
+
+Public APIs rate-limit us, so we remember answers for a short while
+instead of asking again on every page load.
+"""
+
 import time
 
 
-class PriceCache:
-    def __init__(self, duration=30):
-        self.duration = duration
-        self.prices = {}
+class TTLCache:
+    def __init__(self, ttl=60, clock=time.monotonic):
+        self.ttl = ttl
+        self.clock = clock
+        self._items = {}
 
-    def save(self, coin_id, price):
-        self.prices[coin_id] = {
-            "price": price,
-            "time": time.time()
-        }
+    def get(self, key, max_age=None):
+        """Return a cached value, or None if missing or expired."""
+        item = self._items.get(key)
 
-    def get(self, coin_id):
-        if coin_id not in self.prices:
+        if item is None:
             return None
 
-        saved_data = self.prices[coin_id]
+        value, saved_at = item
+        limit = self.ttl if max_age is None else max_age
 
-        age = time.time() - saved_data["time"]
-
-        if age > self.duration:
+        if self.clock() - saved_at > limit:
             return None
 
-        return saved_data["price"]
+        return value
 
-    def has(self, coin_id):
-        return self.get(coin_id) is not None
+    def get_stale(self, key):
+        """Return the last value even if it expired (for offline fallback)."""
+        item = self._items.get(key)
+        return None if item is None else item[0]
+
+    def set(self, key, value):
+        self._items[key] = (value, self.clock())
+
+    def age(self, key):
+        item = self._items.get(key)
+        return None if item is None else self.clock() - item[1]
+
+    def has(self, key):
+        return self.get(key) is not None
+
+    def clear(self, key=None):
+        if key is None:
+            self._items.clear()
+        else:
+            self._items.pop(key, None)

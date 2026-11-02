@@ -1,52 +1,69 @@
-# portfolio.py
+"""Manually entered holdings (coins on exchanges, cold storage, etc.)."""
 
-from .network_config import NETWORKS
+from . import assets
+from .errors import ValidationError
+
+
+def parse_amount(value):
+    """Turn user input into a non-negative float, or raise ValidationError."""
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        raise ValidationError(f"Not a number: {value!r}") from None
+
+    if amount != amount or amount in (float("inf"), float("-inf")):
+        raise ValidationError("Amount must be a finite number.")
+
+    if amount < 0:
+        raise ValidationError("Amount cannot be negative.")
+
+    return amount
+
+
+def check_asset(asset_id):
+    if not assets.is_known(asset_id):
+        raise ValidationError(f"Unknown asset: {asset_id}")
 
 
 class Portfolio:
-    """Manage GNOMEfinance portfolio assets."""
+    def __init__(self, holdings=None):
+        self._holdings = {}
 
-    def __init__(self):
-        self.assets = {}
+        for asset_id, amount in (holdings or {}).items():
+            self.set(asset_id, amount)
 
-    def add_asset(self, network, amount):
-        """Add an amount of an asset to the portfolio."""
-        if network not in NETWORKS:
-            raise ValueError(f"Unknown network: {network}")
+    def add(self, asset_id, amount):
+        """Add to an existing holding (e.g. you bought more)."""
+        check_asset(asset_id)
+        amount = parse_amount(amount)
+        self.set(asset_id, self.amount(asset_id) + amount)
 
-        if amount < 0:
-            raise ValueError("Amount cannot be negative.")
+    def set(self, asset_id, amount):
+        """Set a holding to an exact amount. Zero removes it."""
+        check_asset(asset_id)
+        amount = parse_amount(amount)
 
-        self.assets[network] = self.assets.get(network, 0) + amount
+        if amount == 0:
+            self.remove(asset_id)
+        else:
+            self._holdings[asset_id] = amount
 
-    def get_amount(self, network):
-        """Return the amount held for a network."""
-        return self.assets.get(network, 0)
+    def remove(self, asset_id):
+        self._holdings.pop(asset_id, None)
 
-    def get_all_assets(self):
-        """Return all portfolio assets."""
-        return self.assets
+    def clear(self):
+        self._holdings.clear()
 
-    def display(self):
-        """Display the current portfolio."""
-        print("GNOMEfinance Portfolio")
-        print("----------------------")
+    def amount(self, asset_id):
+        return self._holdings.get(asset_id, 0.0)
 
-        for network, amount in self.assets.items():
-            info = NETWORKS[network]
+    @property
+    def holdings(self):
+        """A copy, so callers cannot change the portfolio by accident."""
+        return dict(self._holdings)
 
-            print(
-                f"{info['name']}: "
-                f"{amount} {info['symbol']}"
-            )
+    def __len__(self):
+        return len(self._holdings)
 
-
-if __name__ == "__main__":
-    portfolio = Portfolio()
-
-    portfolio.add_asset("bitcoin", 0.065)
-    portfolio.add_asset("solana", 5.4)
-    portfolio.add_asset("cardano", 1500)
-    portfolio.add_asset("avalanche", 25)
-
-    portfolio.display()
+    def __contains__(self, asset_id):
+        return asset_id in self._holdings
