@@ -59,6 +59,7 @@ def create_app(service=None):
             assets=ASSETS,
             chains=gf().chains,
             ranges=HISTORY_RANGES,
+            static_site=app.config.get("STATIC_SITE", False),
         )
 
     # -- API ---------------------------------------------------------------

@@ -51,6 +51,20 @@ python -m gnomefinance portfolio
 
 (Or `pip install -e .` once, and then just use `gnomefinance prices` from anywhere.)
 
+## GitHub Pages version
+
+There's also a static version of the dashboard that needs no server. It's built by `scripts/build_static.py` and deployed by `.github/workflows/pages.yml` on every push to `main`. In that version:
+
+- prices and wallet balances are fetched directly from the browser, and
+- holdings are saved in the visitor's own browser (`localStorage`), so everyone who opens the page sees only their own data.
+
+To try the static build locally:
+
+```bash
+python scripts/build_static.py
+python -m http.server -d site 8000
+```
+
 ## Configuration
 
 Everything is optional and set through environment variables, so no secrets ever go in the code.

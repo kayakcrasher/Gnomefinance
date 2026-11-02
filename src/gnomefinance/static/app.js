@@ -57,6 +57,9 @@ function el(tag, attrs = {}, ...children) {
 // ---------- API ----------
 
 async function api(path, options = {}) {
+    // On GitHub Pages there is no server: browser_backend.js answers instead.
+    if (window.GnomeBackend) return window.GnomeBackend.request(path, options);
+
     const response = await fetch(path, {
         headers: { "Content-Type": "application/json" },
         ...options,
